@@ -19,13 +19,31 @@ import javax.swing.KeyStroke;
 public class GUI extends JFrame {
 
 
-    public GUI(String text){
-        super(text);
+    public GUI(){
+        super("Graphic Editor");
+        setSize(500,700);
 
-        setLayout(new GridLayout());
 
-        menu();
-        add(symbolleiste());
+        setLayout(new BorderLayout());
+
+        JToolBar symbolleiste = new JToolBar();
+        symbolleiste.setFloatable(false);
+
+        JButton Undo = new JButton("Undo");
+        //hier image statt text
+        JButton Redo = new JButton("Redo");
+        JButton Speichern = new JButton("Speichern");
+
+        Undo.setActionCommand("undo");
+        Redo.setActionCommand("redo");
+        Speichern.setActionCommand("speichern");
+
+        symbolleiste.add(Undo);
+        symbolleiste.add(Redo);
+        symbolleiste.add(Speichern);
+
+        add(symbolleiste);
+
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -38,47 +56,5 @@ public class GUI extends JFrame {
 
         }
     }
-    //Erstellung der Menübar mithilfe dieser Methode
-    // das ist vom seminar
-    private void menu(){
-        JMenuBar menue = new JMenuBar();
-        JMenu dateiMenue = new JMenu("Datei");
 
-        MeinListener listener = new MeinListener();
-
-        JMenuItem dateiNeu = new JMenuItem();
-        dateiNeu.setText("Neu");
-        dateiNeu.setIcon(new ImageIcon("icons/new24.gif"));
-        dateiNeu.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_DOWN_MASK));
-        dateiNeu.setActionCommand("neu");
-        dateiNeu.addActionListener(listener);
-        dateiMenue.add(dateiNeu);
-
-
-
-        JMenuItem dateiBeenden = new JMenuItem();
-        dateiBeenden.setText("Beenden");
-        dateiBeenden.setActionCommand("beenden");
-        dateiBeenden.addActionListener(listener);
-        dateiMenue.add(dateiBeenden);
-
-        menue.add(dateiMenue);
-        this.setJMenuBar(menue);
-    }
-    //Erstellung der Symbolleiste
-    private JToolBar symbolleiste() {
-        JToolBar leiste = new JToolBar();
-        MeinListener listener = new MeinListener();
-
-        JButton dateiNeuButton = new JButton();
-        dateiNeuButton.setActionCommand("neu");
-        dateiNeuButton.setIcon(new ImageIcon("icons/new24.gif"));
-        dateiNeuButton.setToolTipText("Erstellt ein neues Dokument");
-
-        dateiNeuButton.addActionListener(listener);
-
-        leiste.add(dateiNeuButton);
-
-        return (leiste);
-    }
 }
