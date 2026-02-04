@@ -13,7 +13,7 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
     private boolean mausgedrueckt = false;
-    private String Modus = "Ellipse";
+    private String Modus = "Kreis";
     public Zeichenflaeche zeichenflaeche;
 
     public GUI(){
@@ -128,7 +128,7 @@ public class GUI extends JFrame {
 
                 }
             }
-            if(Modus.equals("Ellipse")){
+            if(Modus.equals("Ellipse")||Modus.equals("Kreis")){
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
             }
@@ -145,6 +145,16 @@ public class GUI extends JFrame {
                 int breite = Math.abs(EndXKoordinate-StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
                 int hoehe = Math.abs(EndYKoordinate-StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
                 zeichenflaeche.zeichneEllipse(new Ellipse(xKoordinate,yKoordinate,breite,hoehe));
+            }
+            if(Modus.equals("Kreis")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
+                double radiusinDouble = Math.sqrt((StartxKoordinate-EndXKoordinate)*(StartxKoordinate-EndXKoordinate)
+                        +(StartyKoordinate-EndYKoordinate)*(StartyKoordinate-EndYKoordinate)) ; // Berechnung radius mithilfe Pythagoras
+                int radius = (int) radiusinDouble;
+                int xKoordinate = StartxKoordinate - radius ; // Berechnung der Koordinaten des Mittelpunktes
+                int yKoordinate = StartyKoordinate - radius;
+                zeichenflaeche.zeichneKreis(new Kreis(radius*2,xKoordinate,yKoordinate));
             }
 
         }
