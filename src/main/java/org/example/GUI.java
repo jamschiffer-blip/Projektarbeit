@@ -14,9 +14,11 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
     private boolean mausgedrueckt = false;
-    private String Modus = "Fuellen";
+    private String Modus = "Frei";
     public Zeichenflaeche zeichenflaeche;
-    private String[] Farbe =  {"Rot","Blau","Gelb","Grün","Orange"};
+    private Color aktuelleFarbe = Color.YELLOW;
+
+    private float aktuelleDicke;
 
     public GUI(){
         super("Graphic Editor");
@@ -117,7 +119,10 @@ public class GUI extends JFrame {
                 {
                     int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon,counterPolygon);
                     int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon,counterPolygon);
-                    zeichenflaeche.zeichnePolygon(new Polygon(xKoordinaten,yKoordinaten));//nur das benutzte Array wird verwendetet
+                    Polygon polygon = new Polygon(xKoordinaten,yKoordinaten);
+                    polygon.setFarbe(aktuelleFarbe);
+                    polygon.setDicke(aktuelleDicke);
+                    zeichenflaeche.zeichnePolygon(polygon);//nur das benutzte Array wird verwendetet
                     counterPolygon = 0; //für nächstes Polygon zurücksetzen
                 }
 
@@ -147,7 +152,10 @@ public class GUI extends JFrame {
                         counter = 0;
                         EndXKoordinate = e.getX();
                         EndYKoordinate = e.getY();
-                        zeichenflaeche.zeichneLinie(new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate));
+                        Linie linie = new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate);
+                        linie.setFarbe(aktuelleFarbe);
+                        linie.setDicke(aktuelleDicke);
+                        zeichenflaeche.zeichneLinie(linie);
                         break;
 
 
@@ -170,7 +178,10 @@ public class GUI extends JFrame {
                 int yKoordinate = Math.min(StartyKoordinate,EndYKoordinate);
                 int breite = Math.abs(EndXKoordinate-StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
                 int hoehe = Math.abs(EndYKoordinate-StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
-                zeichenflaeche.zeichneEllipse(new Ellipse(xKoordinate,yKoordinate,breite,hoehe));
+                Ellipse ellipse = new Ellipse(xKoordinate,yKoordinate,breite,hoehe);
+                ellipse.setFarbe(aktuelleFarbe);
+                ellipse.setDicke(aktuelleDicke);
+                zeichenflaeche.zeichneEllipse(ellipse);
             }
             if(Modus.equals("Kreis")){
                 EndXKoordinate = e.getX();
@@ -180,7 +191,10 @@ public class GUI extends JFrame {
                 int radius = (int) radiusinDouble;
                 int xKoordinate = StartxKoordinate - radius ; // Berechnung der Koordinaten des Mittelpunktes
                 int yKoordinate = StartyKoordinate - radius;
-                zeichenflaeche.zeichneKreis(new Kreis(radius*2,xKoordinate,yKoordinate));
+                Kreis kreis = new Kreis(radius*2,xKoordinate,yKoordinate);
+                kreis.setFarbe(aktuelleFarbe);
+                kreis.setDicke(aktuelleDicke);
+                zeichenflaeche.zeichneKreis(kreis);
             }
             if(Modus.equals("Rechteck")){
                 EndXKoordinate = e.getX();
@@ -190,7 +204,10 @@ public class GUI extends JFrame {
                 int yKoordinate = Math.min(StartyKoordinate,EndYKoordinate);
                 int breite = Math.abs(EndXKoordinate-StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
                 int hoehe = Math.abs(EndYKoordinate-StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
-                zeichenflaeche.zeichneRechteck(new Rechteck(xKoordinate,yKoordinate,breite,hoehe));
+                Rechteck rechteck = new Rechteck(xKoordinate,yKoordinate,breite,hoehe);
+                rechteck.setFarbe(aktuelleFarbe);
+                rechteck.setDicke(aktuelleDicke);
+                zeichenflaeche.zeichneRechteck(rechteck);
             }
         }
 
@@ -209,8 +226,10 @@ public class GUI extends JFrame {
             if(Modus.equals("Frei")){
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
-
-                zeichenflaeche.zeichneLinie(new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate));
+                Linie linie = new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate);
+                linie.setFarbe(aktuelleFarbe);
+                linie.setDicke(aktuelleDicke);
+                zeichenflaeche.zeichneLinie(linie);
 
                 StartxKoordinate = EndXKoordinate;
                 StartyKoordinate = EndYKoordinate;
