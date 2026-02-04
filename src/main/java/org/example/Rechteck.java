@@ -2,7 +2,7 @@ package org.example;
 
 public class Rechteck {
     private int xKoordinate,yKoordinate,Breite,Hoehe;
-
+    protected boolean ausgefuellt = false;
     public Rechteck(int StartxKoordinate,int StartyKoordinate,int Breite,int Hoehe) {
         this.xKoordinate = StartxKoordinate;
         this.yKoordinate = StartyKoordinate;
@@ -24,5 +24,13 @@ public class Rechteck {
 
     public int getHoehe() {
         return Hoehe;
+    }
+
+    public boolean isAusgefuellt() {
+        return ausgefuellt;
+    }
+
+    public void setAusgefuellt(boolean ausgefuellt) {
+        this.ausgefuellt = ausgefuellt;
     }
 }

@@ -3,7 +3,7 @@ package org.example;
 public class Ellipse {
 
     private int xKoordinate,yKoordinate,breite, hoehe;
-
+    protected boolean ausgefuellt = false;
     public Ellipse(int xKoordinate,int yKoordinate,int breite,int hoehe) {
         this.xKoordinate = xKoordinate;
         this.yKoordinate = yKoordinate;
@@ -25,5 +25,13 @@ public class Ellipse {
 
     public int getHoehe() {
         return hoehe;
+    }
+
+    public boolean isAusgefuellt() {
+        return ausgefuellt;
+    }
+
+    public void setAusgefuellt(boolean ausgefuellt) {
+        this.ausgefuellt = ausgefuellt;
     }
 }

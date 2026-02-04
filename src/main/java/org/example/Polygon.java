@@ -1,8 +1,8 @@
 package org.example;
 
 public class Polygon {
-    int[] xKoordinaten,yKoordinaten;
-
+    private int[] xKoordinaten,yKoordinaten;
+    protected boolean ausgefuellt = false;
     public Polygon(int[] xKoordinaten,int[] yKoordinaten) {
         this.xKoordinaten = xKoordinaten;
         this.yKoordinaten = yKoordinaten;
@@ -17,5 +17,13 @@ public class Polygon {
     }
     public int getAnzahlPunkte(){
         return xKoordinaten.length;
+    }
+
+    public boolean isAusgefuellt() {
+        return ausgefuellt;
+    }
+
+    public void setAusgefuellt(boolean ausgefuellt) {
+        this.ausgefuellt = ausgefuellt;
     }
 }

@@ -14,8 +14,9 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
     private boolean mausgedrueckt = false;
-    private String Modus = "Polygon";
+    private String Modus = "Fuellen";
     public Zeichenflaeche zeichenflaeche;
+    private String[] Farbe =  {"Rot","Blau","Gelb","Grün","Orange"};
 
     public GUI(){
         super("Graphic Editor");
@@ -119,6 +120,9 @@ public class GUI extends JFrame {
                     zeichenflaeche.zeichnePolygon(new Polygon(xKoordinaten,yKoordinaten));//nur das benutzte Array wird verwendetet
                     counterPolygon = 0; //für nächstes Polygon zurücksetzen
                 }
+
+            }
+            if(Modus.equals("Fuellen")&&e.getClickCount()==2){
 
             }
         }
