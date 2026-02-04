@@ -2,6 +2,7 @@ package org.example;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import javax.swing.*;
 
 public class GUI extends JFrame {
@@ -13,7 +14,7 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
     private boolean mausgedrueckt = false;
-    private String Modus = "Rechteck";
+    private String Modus = "Polygon";
     public Zeichenflaeche zeichenflaeche;
 
     public GUI(){
@@ -88,6 +89,9 @@ public class GUI extends JFrame {
         int StartyKoordinate ;
         int EndXKoordinate ;
         int EndYKoordinate;
+        int counterPolygon = 0;
+        int[] xKoordinatenPolygon = new int [100]; //Das Polygon darf maximal 100 Punkte haben
+        int[] yKoordinatenPolygon = new int [100];
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -95,9 +99,27 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            double distanz;
+
             if(Modus.equals("Frei")){
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
+            }
+            if(Modus.equals("Polygon")){
+
+                if(counterPolygon<100){
+                    xKoordinatenPolygon[counterPolygon] = e.getX();
+                    yKoordinatenPolygon[counterPolygon] = e.getY();
+                    counterPolygon++;
+                }
+                if(counterPolygon>=3&&e.getClickCount()==2) //Clickcount==2 da man dann mit einem Doppelklick das Polygon abschliessen kann
+                {
+                    int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon,counterPolygon);
+                    int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon,counterPolygon);
+                    zeichenflaeche.zeichnePolygon(new Polygon(xKoordinaten,yKoordinaten));//nur das benutzte Array wird verwendetet
+                    counterPolygon = 0; //für nächstes Polygon zurücksetzen
+                }
+
             }
         }
 
