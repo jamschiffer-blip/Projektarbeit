@@ -6,6 +6,7 @@ public class Kreis {
     private int Durchmesser,xKoordinate,yKoordinate;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
+    private float dicke = 2.0f;
 
     public Kreis(int Durchmesser,int xKoordinate,int yKoordinate) {
         this.xKoordinate = xKoordinate;
@@ -38,6 +39,14 @@ public class Kreis {
 
     public void setFarbe(Color farbe) {
         this.farbe = farbe;
+    }
+
+    public float getDicke() {
+        return dicke;
+    }
+
+    public void setDicke(float dicke) {
+        this.dicke = dicke;
     }
 }
 

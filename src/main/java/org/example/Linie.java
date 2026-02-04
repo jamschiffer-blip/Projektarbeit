@@ -1,8 +1,11 @@
 package org.example;
 
+import java.awt.*;
+
 public class Linie {
     private int StartX,EndX,StartY,EndY;
-
+    private Color farbe = Color.BLACK;
+    private float dicke = 2.0f;
     public Linie(int StartX,int StartY,int EndX, int EndY) {
         this.StartX = StartX;
         this.StartY = StartY;
@@ -24,5 +27,21 @@ public class Linie {
 
     public int getEndY() {
         return EndY;
+    }
+
+    public Color getFarbe() {
+        return farbe;
+    }
+
+    public void setFarbe(Color farbe) {
+        this.farbe = farbe;
+    }
+
+    public float getDicke() {
+        return dicke;
+    }
+
+    public void setDicke(float dicke) {
+        this.dicke = dicke;
     }
 }

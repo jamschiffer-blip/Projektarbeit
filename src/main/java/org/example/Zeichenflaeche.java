@@ -46,15 +46,31 @@ public class Zeichenflaeche extends JPanel {
         super.paintComponent(g);
         Graphics2D grafik = (Graphics2D) g ;
 
-        for(Linie linie : Linien)
+        for(Linie linie : Linien){
+            grafik.setStroke(new BasicStroke(linie.getDicke()));
+            grafik.setColor(linie.getFarbe());
             grafik.drawLine(linie.getStartX(),linie.getStartY(),linie.getEndX(), linie.getEndY());
-        for(Ellipse ellipse : Ellipsen)
+        }
+
+        for(Ellipse ellipse : Ellipsen) {
+            grafik.setStroke(new BasicStroke(ellipse.getDicke()));
+            grafik.setColor(ellipse.getFarbe());
             grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
-        for(Kreis kreis : Kreise)
+        }
+        for(Kreis kreis : Kreise) {
+            grafik.setStroke(new BasicStroke(kreis.getDicke()));
+            grafik.setColor(kreis.getFarbe());
             grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() ); //hoehe und breite sind bei kreis gleich
-        for(Rechteck rechteck : Rechtecke)
+        }
+        for(Rechteck rechteck : Rechtecke) {
+            grafik.setStroke(new BasicStroke(rechteck.getDicke()));
+            grafik.setColor(rechteck.getFarbe());
             grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
-        for(Polygon polygon : Polygons)
+        }
+        for(Polygon polygon : Polygons) {
+            grafik.setStroke(new BasicStroke(polygon.getDicke()));
+            grafik.setColor(polygon.getFarbe());
             grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+        }
     }
 }

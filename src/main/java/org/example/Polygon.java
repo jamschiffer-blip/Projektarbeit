@@ -6,6 +6,7 @@ public class Polygon {
     private int[] xKoordinaten,yKoordinaten;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
+    private float dicke = 2.0f;
     public Polygon(int[] xKoordinaten,int[] yKoordinaten) {
         this.xKoordinaten = xKoordinaten;
         this.yKoordinaten = yKoordinaten;
@@ -35,6 +36,14 @@ public class Polygon {
 
     public void setFarbe(Color farbe) {
         this.farbe = farbe;
+    }
+
+    public float getDicke() {
+        return dicke;
+    }
+
+    public void setDicke(float dicke) {
+        this.dicke = dicke;
     }
 }
 
