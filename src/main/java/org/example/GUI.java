@@ -13,7 +13,7 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
     private boolean mausgedrueckt = false;
-    private String Modus = "Kreis";
+    private String Modus = "Rechteck";
     public Zeichenflaeche zeichenflaeche;
 
     public GUI(){
@@ -128,7 +128,7 @@ public class GUI extends JFrame {
 
                 }
             }
-            if(Modus.equals("Ellipse")||Modus.equals("Kreis")){
+            if(Modus.equals("Ellipse")||Modus.equals("Kreis")||Modus.equals("Rechteck")){
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
             }
@@ -156,7 +156,16 @@ public class GUI extends JFrame {
                 int yKoordinate = StartyKoordinate - radius;
                 zeichenflaeche.zeichneKreis(new Kreis(radius*2,xKoordinate,yKoordinate));
             }
+            if(Modus.equals("Rechteck")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
 
+                int xKoordinate = Math.min(StartxKoordinate,EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                int yKoordinate = Math.min(StartyKoordinate,EndYKoordinate);
+                int breite = Math.abs(EndXKoordinate-StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                int hoehe = Math.abs(EndYKoordinate-StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
+                zeichenflaeche.zeichneRechteck(new Rechteck(xKoordinate,yKoordinate,breite,hoehe));
+            }
         }
 
         @Override

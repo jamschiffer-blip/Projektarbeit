@@ -10,11 +10,13 @@ public class Zeichenflaeche extends JPanel {
     public List<Linie> Linien;
     public List<Ellipse> Ellipsen;
     public List<Kreis> Kreise;
+    public List<Rechteck> Rechtecke;
 
     public Zeichenflaeche() {
         Linien = new ArrayList<>();//hier werden die Linien die gezeichnet werden erstgespeichert
         Ellipsen = new ArrayList<>();
         Kreise = new ArrayList<>();
+        Rechtecke = new ArrayList<>();
     }
     public void zeichneLinie(Linie linie){
         Linien.add(linie);
@@ -26,6 +28,10 @@ public class Zeichenflaeche extends JPanel {
     }
     public void zeichneKreis(Kreis kreis){
         Kreise.add(kreis);
+        repaint();
+    }
+    public void zeichneRechteck(Rechteck rechteck){
+        Rechtecke.add(rechteck);
         repaint();
     }
 
@@ -40,7 +46,8 @@ public class Zeichenflaeche extends JPanel {
             grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
         for(Kreis kreis : Kreise)
             grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() ); //hoehe und breite sind bei kreis gleich
-
+        for(Rechteck rechteck : Rechtecke)
+            grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
 
     }
 }
