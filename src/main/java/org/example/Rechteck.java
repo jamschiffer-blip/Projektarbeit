@@ -1,8 +1,11 @@
 package org.example;
 
+import java.awt.*;
+
 public class Rechteck {
     private int xKoordinate,yKoordinate,Breite,Hoehe;
     protected boolean ausgefuellt = false;
+    private Color farbe = Color.BLACK;
     public Rechteck(int StartxKoordinate,int StartyKoordinate,int Breite,int Hoehe) {
         this.xKoordinate = StartxKoordinate;
         this.yKoordinate = StartyKoordinate;
@@ -32,5 +35,12 @@ public class Rechteck {
 
     public void setAusgefuellt(boolean ausgefuellt) {
         this.ausgefuellt = ausgefuellt;
+    }
+    public Color getFarbe(){
+        return farbe;
+    }
+
+    public void setFarbe(Color farbe) {
+        this.farbe = farbe;
     }
 }

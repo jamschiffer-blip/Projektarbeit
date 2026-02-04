@@ -1,8 +1,11 @@
 package org.example;
 
+import java.awt.*;
+
 public class Polygon {
     private int[] xKoordinaten,yKoordinaten;
     protected boolean ausgefuellt = false;
+    private Color farbe = Color.BLACK;
     public Polygon(int[] xKoordinaten,int[] yKoordinaten) {
         this.xKoordinaten = xKoordinaten;
         this.yKoordinaten = yKoordinaten;
@@ -26,4 +29,12 @@ public class Polygon {
     public void setAusgefuellt(boolean ausgefuellt) {
         this.ausgefuellt = ausgefuellt;
     }
+    public Color getFarbe(){
+        return farbe;
+    }
+
+    public void setFarbe(Color farbe) {
+        this.farbe = farbe;
+    }
 }
+

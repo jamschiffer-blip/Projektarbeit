@@ -123,7 +123,7 @@ public class GUI extends JFrame {
 
             }
             if(Modus.equals("Fuellen")&&e.getClickCount()==2){
-
+                //hier kommt der Füllmodus hin
             }
         }
 
@@ -214,6 +214,9 @@ public class GUI extends JFrame {
 
                 StartxKoordinate = EndXKoordinate;
                 StartyKoordinate = EndYKoordinate;
+            }
+            if(Modus.equals("Radieren")){
+
             }
         }
 

@@ -1,8 +1,11 @@
 package org.example;
 
+import java.awt.*;
+
 public class Kreis {
     private int Durchmesser,xKoordinate,yKoordinate;
     protected boolean ausgefuellt = false;
+    private Color farbe = Color.BLACK;
 
     public Kreis(int Durchmesser,int xKoordinate,int yKoordinate) {
         this.xKoordinate = xKoordinate;
@@ -29,4 +32,12 @@ public class Kreis {
     public void setAusgefuellt(boolean ausgefuellt) {
         this.ausgefuellt = ausgefuellt;
     }
+    public Color getFarbe(){
+        return farbe;
+    }
+
+    public void setFarbe(Color farbe) {
+        this.farbe = farbe;
+    }
 }
+
