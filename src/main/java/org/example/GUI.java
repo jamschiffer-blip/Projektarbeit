@@ -13,7 +13,7 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
     private boolean mausgedrueckt = false;
-    private String Modus = "Frei";
+    private String Modus = "Ellipse";
     public Zeichenflaeche zeichenflaeche;
 
     public GUI(){
@@ -128,14 +128,24 @@ public class GUI extends JFrame {
 
                 }
             }
-            if(Modus.equals("Frei")){
-
+            if(Modus.equals("Ellipse")){
+                StartxKoordinate = e.getX();
+                StartyKoordinate = e.getY();
             }
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
+            if(Modus.equals("Ellipse")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
 
+                int xKoordinate = Math.min(StartxKoordinate,EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                int yKoordinate = Math.min(StartyKoordinate,EndYKoordinate);
+                int breite = Math.abs(EndXKoordinate-StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                int hoehe = Math.abs(EndYKoordinate-StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
+                zeichenflaeche.zeichneEllipse(new Ellipse(xKoordinate,yKoordinate,breite,hoehe));
+            }
 
         }
 
