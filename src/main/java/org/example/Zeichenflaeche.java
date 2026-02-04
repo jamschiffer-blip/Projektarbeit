@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Zeichenflaeche extends JPanel {
-    private List<Linie> Linien;
+    public List<Linie> Linien;
 
     public Zeichenflaeche() {
         Linien = new ArrayList<>(); //hier werden die Linien die gezeichnet werden erstgespeichert

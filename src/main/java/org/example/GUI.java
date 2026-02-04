@@ -1,9 +1,18 @@
 package org.example;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
+import java.awt.event.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ImageObserver;
+import java.awt.image.RenderedImage;
+import java.awt.image.renderable.RenderableImage;
+import java.text.AttributedCharacterIterator;
+import java.util.ArrayList;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -15,13 +24,19 @@ public class GUI extends JFrame {
     private JMenuBar menueleiste;
     private JMenu datei;
     private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
-
+    private boolean mausgedrueckt = false;
+    private String Modus = "Frei";
+    public Zeichenflaeche zeichenflaeche;
 
     public GUI(){
         super("Graphic Editor");
         setSize(500,700);
+        zeichenflaeche = new Zeichenflaeche();
 
         MeinListener listener = new MeinListener();
+        zeichenflaeche.addMouseListener(listener);
+        
+
 
         setLayout(new BorderLayout());
 
@@ -68,16 +83,70 @@ public class GUI extends JFrame {
 
 
         add(leiste,BorderLayout.NORTH);
-
+        add(zeichenflaeche,BorderLayout.CENTER);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         pack();
     }
-    class MeinListener implements ActionListener{
+    class MeinListener implements ActionListener, MouseListener, MouseMotionListener {
 
+
+
+        int StartxKoordinate = 0;
+        int StartyKoordinate = 0;
+        int EndXKoordinate = 0;
+        int EndYKoordinate = 0;
         @Override
         public void actionPerformed(ActionEvent e) {
+
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if(Modus.equals("Gerade")){
+                StartxKoordinate = e.getX();
+                StartyKoordinate = e.getY();
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if(Modus.equals("Gerade")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
+                zeichenflaeche.zeichneLinie(new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate));
+                repaint();
+            }
+            if(Modus.equals("Frei")){
+
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            if(Modus.equals("Frei")){
+
+            }
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
 
         }
     }
