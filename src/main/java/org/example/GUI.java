@@ -2,18 +2,6 @@ package org.example;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ImageObserver;
-import java.awt.image.RenderedImage;
-import java.awt.image.renderable.RenderableImage;
-import java.text.AttributedCharacterIterator;
-import java.util.ArrayList;
-import java.util.Map;
-
 import javax.swing.*;
 
 public class GUI extends JFrame {
@@ -30,12 +18,14 @@ public class GUI extends JFrame {
 
     public GUI(){
         super("Graphic Editor");
-        setSize(500,700);
+        setSize(1500,2000);
         zeichenflaeche = new Zeichenflaeche();
+        zeichenflaeche.setPreferredSize(new Dimension(1200,1000));
 
         MeinListener listener = new MeinListener();
         zeichenflaeche.addMouseListener(listener);
-        
+        zeichenflaeche.addMouseMotionListener(listener);
+
 
 
         setLayout(new BorderLayout());
@@ -84,19 +74,20 @@ public class GUI extends JFrame {
 
         add(leiste,BorderLayout.NORTH);
         add(zeichenflaeche,BorderLayout.CENTER);
+        pack();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-        pack();
+
     }
     class MeinListener implements ActionListener, MouseListener, MouseMotionListener {
 
 
-
-        int StartxKoordinate = 0;
-        int StartyKoordinate = 0;
-        int EndXKoordinate = 0;
-        int EndYKoordinate = 0;
+        int counter = 0;
+        int StartxKoordinate ;
+        int StartyKoordinate ;
+        int EndXKoordinate ;
+        int EndYKoordinate;
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -104,7 +95,7 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            if(Modus.equals("Gerade")){
+            if(Modus.equals("Frei")){
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
             }
@@ -112,11 +103,30 @@ public class GUI extends JFrame {
 
         @Override
         public void mousePressed(MouseEvent e) {
+            if(Modus.equals("Frei")){
+                StartxKoordinate = e.getX();
+                StartyKoordinate = e.getY();
+            }
+
             if(Modus.equals("Gerade")){
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
-                zeichenflaeche.zeichneLinie(new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate));
-                repaint();
+                switch(counter){
+                    case 0:
+                        counter++;
+                        StartyKoordinate = e.getY();
+                        StartxKoordinate = e.getX();
+                        break;
+
+
+                    case 1:
+                        counter = 0;
+                        EndXKoordinate = e.getX();
+                        EndYKoordinate = e.getY();
+                        zeichenflaeche.zeichneLinie(new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate));
+                        break;
+
+
+
+                }
             }
             if(Modus.equals("Frei")){
 
@@ -125,9 +135,8 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if(Modus.equals("Frei")){
 
-            }
+
         }
 
         @Override
@@ -142,7 +151,15 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseDragged(MouseEvent e) {
+            if(Modus.equals("Frei")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
 
+                zeichenflaeche.zeichneLinie(new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate));
+
+                StartxKoordinate = EndXKoordinate;
+                StartyKoordinate = EndYKoordinate;
+            }
         }
 
         @Override
