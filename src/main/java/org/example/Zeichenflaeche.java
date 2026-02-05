@@ -48,7 +48,9 @@ public class Zeichenflaeche extends JPanel {
     protected void paintComponent(Graphics g) { //überschreiben von paintcomponent anstatt graphics2d wäre sonst zzu gross
         super.paintComponent(g);
         Graphics2D grafik = (Graphics2D) g ;
-
+        if(Bild != null){
+            grafik.drawImage(Bild,0,0,null); //Wenn es Bild gibt das geladen wurde wird es gezeichnet
+        }
         for(Linie linie : Linien){
             grafik.setStroke(new BasicStroke(linie.getDicke())); //als Methode schreiben evtl
             grafik.setColor(linie.getFarbe());
@@ -86,7 +88,7 @@ public class Zeichenflaeche extends JPanel {
         repaint();
     }
 
-    public BufferedImage getBild() {
+    public BufferedImage wandleBildinBufferdImage() {
         BufferedImage Bild = new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_RGB); //Um als JPG zu zeichen es gibt RGB Farben
         Graphics2D grafik = Bild.createGraphics(); //hiermit kann man im BufferedImage zeichnen
 
@@ -123,6 +125,14 @@ public class Zeichenflaeche extends JPanel {
         grafik.dispose();
 
 
+        return Bild;
+    }
+
+    public void setBild(BufferedImage bild) {
+        Bild = bild;
+        repaint();
+    }
+    public BufferedImage getBild(){
         return Bild;
     }
 }

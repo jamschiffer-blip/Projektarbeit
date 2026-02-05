@@ -12,12 +12,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI extends JFrame {
 
-    private JButton Undo,Redo,Speichern;
+    private JButton Undo, Redo, Speichern;
     private JPanel leiste;
     private JToolBar symbolleiste;
     private JMenuBar menueleiste;
     private JMenu datei;
-    private JMenuItem Speichernmenueleiste , Laden, NeueDatei ;
+    private JMenuItem Speichernmenueleiste, Laden, NeueDatei;
     private boolean mausgedrueckt = false;
     private String Modus = "Frei";
     public Zeichenflaeche zeichenflaeche;
@@ -27,16 +27,15 @@ public class GUI extends JFrame {
     private final int Zeichenflaeche_BREITE = 1000;
     private File aktuelleDatei;
 
-    public GUI(){
+    public GUI() {
         super("Graphic Editor");
-        setSize(1500,2000);
+        setSize(1500, 2000);
         zeichenflaeche = new Zeichenflaeche();
-        zeichenflaeche.setPreferredSize(new Dimension(1200,1000));
+        zeichenflaeche.setPreferredSize(new Dimension(1200, 1000));
 
         MeinListener listener = new MeinListener();
         zeichenflaeche.addMouseListener(listener);
         zeichenflaeche.addMouseMotionListener(listener);
-
 
 
         setLayout(new BorderLayout());
@@ -61,8 +60,8 @@ public class GUI extends JFrame {
         symbolleiste.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         leiste = new JPanel();
-        leiste.setLayout(new BoxLayout(leiste,BoxLayout.Y_AXIS));
-        leiste.add(symbolleiste,BorderLayout.WEST); //hiermit bleibt die leiste immer links in der ecke,auch wenn das fenster vergroessert oder verkleinert wird
+        leiste.setLayout(new BoxLayout(leiste, BoxLayout.Y_AXIS));
+        leiste.add(symbolleiste, BorderLayout.WEST); //hiermit bleibt die leiste immer links in der ecke,auch wenn das fenster vergroessert oder verkleinert wird
 
         menueleiste = new JMenuBar();
         datei = new JMenu("Datei");
@@ -83,26 +82,27 @@ public class GUI extends JFrame {
         leiste.add(menueleiste);
 
 
-
-        add(leiste,BorderLayout.NORTH);
-        add(zeichenflaeche,BorderLayout.CENTER);
+        add(leiste, BorderLayout.NORTH);
+        add(zeichenflaeche, BorderLayout.CENTER);
         pack();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
     }
+
     class MeinListener implements ActionListener, MouseListener, MouseMotionListener {
 
 
         int counter = 0;
-        int StartxKoordinate ;
-        int StartyKoordinate ;
-        int EndXKoordinate ;
+        int StartxKoordinate;
+        int StartyKoordinate;
+        int EndXKoordinate;
         int EndYKoordinate;
         int counterPolygon = 0;
-        int[] xKoordinatenPolygon = new int [100]; //Das Polygon darf maximal 100 Punkte haben
-        int[] yKoordinatenPolygon = new int [100];
+        int[] xKoordinatenPolygon = new int[100]; //Das Polygon darf maximal 100 Punkte haben
+        int[] yKoordinatenPolygon = new int[100];
+
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -112,22 +112,22 @@ public class GUI extends JFrame {
         public void mouseClicked(MouseEvent e) {
             double distanz;
 
-            if(Modus.equals("Frei")){
+            if (Modus.equals("Frei")) {
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
             }
-            if(Modus.equals("Polygon")){
+            if (Modus.equals("Polygon")) {
 
-                if(counterPolygon<100){
+                if (counterPolygon < 100) {
                     xKoordinatenPolygon[counterPolygon] = e.getX();
                     yKoordinatenPolygon[counterPolygon] = e.getY();
                     counterPolygon++;
                 }
-                if(counterPolygon>=3&&e.getClickCount()==2) //Clickcount==2 da man dann mit einem Doppelklick das Polygon abschliessen kann
+                if (counterPolygon >= 3 && e.getClickCount() == 2) //Clickcount==2 da man dann mit einem Doppelklick das Polygon abschliessen kann
                 {
-                    int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon,counterPolygon);
-                    int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon,counterPolygon);
-                    Polygon polygon = new Polygon(xKoordinaten,yKoordinaten);
+                    int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon, counterPolygon);
+                    int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
+                    Polygon polygon = new Polygon(xKoordinaten, yKoordinaten);
                     polygon.setFarbe(aktuelleFarbe);
                     polygon.setDicke(aktuelleDicke);
                     zeichenflaeche.zeichnePolygon(polygon);//nur das benutzte Array wird verwendetet
@@ -135,20 +135,20 @@ public class GUI extends JFrame {
                 }
 
             }
-            if(Modus.equals("Fuellen")&&e.getClickCount()==2){
+            if (Modus.equals("Fuellen") && e.getClickCount() == 2) {
                 //hier kommt der Füllmodus hin
             }
         }
 
         @Override
         public void mousePressed(MouseEvent e) {
-            if(Modus.equals("Frei")){
+            if (Modus.equals("Frei")) {
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
             }
 
-            if(Modus.equals("Gerade")){
-                switch(counter){
+            if (Modus.equals("Gerade")) {
+                switch (counter) {
                     case 0:
                         counter++;
                         StartyKoordinate = e.getY();
@@ -160,17 +160,16 @@ public class GUI extends JFrame {
                         counter = 0;
                         EndXKoordinate = e.getX();
                         EndYKoordinate = e.getY();
-                        Linie linie = new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate);
+                        Linie linie = new Linie(StartxKoordinate, StartyKoordinate, EndXKoordinate, EndYKoordinate);
                         linie.setFarbe(aktuelleFarbe);
                         linie.setDicke(aktuelleDicke);
                         zeichenflaeche.zeichneLinie(linie);
                         break;
 
 
-
                 }
             }
-            if(Modus.equals("Ellipse")||Modus.equals("Kreis")||Modus.equals("Rechteck")){
+            if (Modus.equals("Ellipse") || Modus.equals("Kreis") || Modus.equals("Rechteck")) {
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
             }
@@ -178,41 +177,41 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if(Modus.equals("Ellipse")){
+            if (Modus.equals("Ellipse")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
 
-                int xKoordinate = Math.min(StartxKoordinate,EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
-                int yKoordinate = Math.min(StartyKoordinate,EndYKoordinate);
-                int breite = Math.abs(EndXKoordinate-StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
-                int hoehe = Math.abs(EndYKoordinate-StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
-                Ellipse ellipse = new Ellipse(xKoordinate,yKoordinate,breite,hoehe);
+                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
+                Ellipse ellipse = new Ellipse(xKoordinate, yKoordinate, breite, hoehe);
                 ellipse.setFarbe(aktuelleFarbe);
                 ellipse.setDicke(aktuelleDicke);
                 zeichenflaeche.zeichneEllipse(ellipse);
             }
-            if(Modus.equals("Kreis")){
+            if (Modus.equals("Kreis")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
-                double radiusinDouble = Math.sqrt((StartxKoordinate-EndXKoordinate)*(StartxKoordinate-EndXKoordinate)
-                        +(StartyKoordinate-EndYKoordinate)*(StartyKoordinate-EndYKoordinate)) ; // Berechnung radius mithilfe Pythagoras
+                double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
+                        + (StartyKoordinate - EndYKoordinate) * (StartyKoordinate - EndYKoordinate)); // Berechnung radius mithilfe Pythagoras
                 int radius = (int) radiusinDouble;
-                int xKoordinate = StartxKoordinate - radius ; // Berechnung der Koordinaten des Mittelpunktes
+                int xKoordinate = StartxKoordinate - radius; // Berechnung der Koordinaten des Mittelpunktes
                 int yKoordinate = StartyKoordinate - radius;
-                Kreis kreis = new Kreis(radius*2,xKoordinate,yKoordinate);
+                Kreis kreis = new Kreis(radius * 2, xKoordinate, yKoordinate);
                 kreis.setFarbe(aktuelleFarbe);
                 kreis.setDicke(aktuelleDicke);
                 zeichenflaeche.zeichneKreis(kreis);
             }
-            if(Modus.equals("Rechteck")){
+            if (Modus.equals("Rechteck")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
 
-                int xKoordinate = Math.min(StartxKoordinate,EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
-                int yKoordinate = Math.min(StartyKoordinate,EndYKoordinate);
-                int breite = Math.abs(EndXKoordinate-StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
-                int hoehe = Math.abs(EndYKoordinate-StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
-                Rechteck rechteck = new Rechteck(xKoordinate,yKoordinate,breite,hoehe);
+                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
+                Rechteck rechteck = new Rechteck(xKoordinate, yKoordinate, breite, hoehe);
                 rechteck.setFarbe(aktuelleFarbe);
                 rechteck.setDicke(aktuelleDicke);
                 zeichenflaeche.zeichneRechteck(rechteck);
@@ -231,10 +230,10 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            if(Modus.equals("Frei")){
+            if (Modus.equals("Frei")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
-                Linie linie = new Linie(StartxKoordinate,StartyKoordinate,EndXKoordinate,EndYKoordinate);
+                Linie linie = new Linie(StartxKoordinate, StartyKoordinate, EndXKoordinate, EndYKoordinate);
                 linie.setFarbe(aktuelleFarbe);
                 linie.setDicke(aktuelleDicke);
                 zeichenflaeche.zeichneLinie(linie);
@@ -242,7 +241,7 @@ public class GUI extends JFrame {
                 StartxKoordinate = EndXKoordinate; //Damit werden ganz viele kleine Linien verbunden zu einer großen
                 StartyKoordinate = EndYKoordinate;
             }
-            if(Modus.equals("Radieren")){
+            if (Modus.equals("Radieren")) {
 
             }
         }
@@ -252,32 +251,52 @@ public class GUI extends JFrame {
 
         }
     }
-    public void SpeichernUnter(){
+
+    public void SpeichernUnter() {
         JFileChooser filter = new JFileChooser();
         filter.setFileFilter(new FileNameExtensionFilter("jpg")); //es werden nur jpg dateien angezeigt
-        if(filter.showSaveDialog(this)==JFileChooser.APPROVE_OPTION){ //Wenn Nutzer speichern will, kann immer noch abbrechen dabei
-           File datei = filter.getSelectedFile(); // die datei der der benutzer eingegeben hat
-           if(!datei.getName().toLowerCase().endsWith(".jpg"))
-               datei = new File(datei.getAbsoluteFile() + ".jpg"); //hiermit wird geprüft ob der Nutzer schon jpg am ende hat wenn nicht wird es angehangen
-            BufferedImage Bild = zeichenflaeche.getBild();
+        if (filter.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn Nutzer speichern will, kann immer noch abbrechen dabei
+            File datei = filter.getSelectedFile(); // die datei der der benutzer eingegeben hat
+            if (!datei.getName().toLowerCase().endsWith(".jpg"))
+                datei = new File(datei.getAbsoluteFile() + ".jpg"); //hiermit wird geprüft ob der Nutzer schon jpg am ende hat wenn nicht wird es angehangen
+            BufferedImage Bild = zeichenflaeche.wandleBildinBufferdImage();
             try {
-                ImageIO.write(Bild,"jpg",datei); //damit wird datei erzeugt
+                ImageIO.write(Bild, "jpg", datei); //damit wird datei erzeugt
                 aktuelleDatei = datei; //damit ist wenn ich schon enmal richtig gespeiert habe die Datei ungleichnull -Für die Methode zwischen speichern ist das wichtig
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this,"es gab einen Fehler beim Speichern!");
+                JOptionPane.showMessageDialog(this, "es gab einen Fehler beim Speichern!");
             }
         }
     }
-    public void zwischenspeichern(){ //Wie Speichernunter ohne festlegen dateinamen
-        if(aktuelleDatei != null) { //Abfrage ob schonmal Speicherortfestgelegt worden ist
+
+    public void zwischenspeichern() { //Wie Speichernunter ohne festlegen dateinamen
+        if (aktuelleDatei != null) { //Abfrage ob schonmal Speicherortfestgelegt worden ist
             SpeichernUnter();
             return;
         }
-        BufferedImage Bild = zeichenflaeche.getBild();
+        BufferedImage Bild = zeichenflaeche.wandleBildinBufferdImage();
         try {
-            ImageIO.write(Bild,"jpg",aktuelleDatei);
+            ImageIO.write(Bild, "jpg", aktuelleDatei);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,"es gab einen Fehler beim Speichern!");
+            JOptionPane.showMessageDialog(this, "es gab einen Fehler beim Speichern der Datei!");
+        }
+    }
+
+    public void ladeBild() {
+        JFileChooser sucher = new JFileChooser();
+        sucher.setFileFilter(new FileNameExtensionFilter("jpg")); // es werden nur jpgs angezeigt
+        if (sucher.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn nutzer wirklich laden will
+            BufferedImage zuladenesBild = null;
+            try {
+                zuladenesBild = ImageIO.read(sucher.getSelectedFile()); //
+                zeichenflaeche.setBild(zuladenesBild);
+                zeichenflaeche.reset();
+                zeichenflaeche.repaint();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Es gab einen Fehler beim Laden des Bildes!");
+
+            }
+
         }
     }
 }
