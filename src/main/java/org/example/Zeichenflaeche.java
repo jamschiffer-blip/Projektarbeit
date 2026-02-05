@@ -3,6 +3,7 @@ package org.example;
 import javax.sound.sampled.Line;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,8 @@ public class Zeichenflaeche extends JPanel {
     public List<Kreis> Kreise;
     public List<Rechteck> Rechtecke;
     public List<Polygon> Polygons;
+    private BufferedImage Bild;
+
 
     public Zeichenflaeche() {
         Linien = new ArrayList<>();//hier werden die Linien die gezeichnet werden erstgespeichert
@@ -72,5 +75,13 @@ public class Zeichenflaeche extends JPanel {
             grafik.setColor(polygon.getFarbe());
             grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
         }
+    }
+    public void reset(){
+        Linien.clear();;
+        Ellipsen.clear();
+        Kreise.clear();
+        Rechtecke.clear();;
+        Polygons.clear();
+        repaint();
     }
 }

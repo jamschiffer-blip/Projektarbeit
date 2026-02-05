@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI extends JFrame {
 
@@ -17,8 +18,9 @@ public class GUI extends JFrame {
     private String Modus = "Frei";
     public Zeichenflaeche zeichenflaeche;
     private Color aktuelleFarbe = Color.YELLOW;
-
-    private float aktuelleDicke;
+    private float aktuelleDicke = 2.0f;
+    private final int Zeichenflaeche_HOEHE = 1200;
+    private final int Zeichenflaeche_BREITE = 1000;
 
     public GUI(){
         super("Graphic Editor");
@@ -74,6 +76,7 @@ public class GUI extends JFrame {
         menueleiste.add(datei);
 
         leiste.add(menueleiste);
+
 
 
         add(leiste,BorderLayout.NORTH);
@@ -231,7 +234,7 @@ public class GUI extends JFrame {
                 linie.setDicke(aktuelleDicke);
                 zeichenflaeche.zeichneLinie(linie);
 
-                StartxKoordinate = EndXKoordinate;
+                StartxKoordinate = EndXKoordinate; //Damit werden ganz viele kleine Linien verbunden zu einer großen
                 StartyKoordinate = EndYKoordinate;
             }
             if(Modus.equals("Radieren")){
@@ -244,5 +247,9 @@ public class GUI extends JFrame {
 
         }
     }
+    public void ErstellenNeuerDatei(){
+        JFileChooser filter = new JFileChooser();
+        filter.setFileFilter(new FileNameExtensionFilter("jpg")); //es werden nur jpg dateien angezeigt
 
+    }
 }
