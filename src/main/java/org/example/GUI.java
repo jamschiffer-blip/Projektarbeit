@@ -23,15 +23,15 @@ public class GUI extends JFrame {
     public Zeichenflaeche zeichenflaeche;
     private Color aktuelleFarbe = Color.YELLOW;
     private float aktuelleDicke = 2.0f;
-    private final int Zeichenflaeche_HOEHE = 1200;
-    private final int Zeichenflaeche_BREITE = 1000;
+    private final int Zeichenflaeche_HOEHE = 2000;
+    private final int Zeichenflaeche_BREITE = 1500;
     private File aktuelleDatei;
 
     public GUI() {
         super("Graphic Editor");
-        setSize(1500, 2000);
+        setSize(2000, 2500);
         zeichenflaeche = new Zeichenflaeche();
-        zeichenflaeche.setPreferredSize(new Dimension(1200, 1000));
+        zeichenflaeche.setPreferredSize(new Dimension(Zeichenflaeche_BREITE, Zeichenflaeche_HOEHE));
 
         MeinListener listener = new MeinListener();
         zeichenflaeche.addMouseListener(listener);
@@ -53,6 +53,7 @@ public class GUI extends JFrame {
         Undo.setActionCommand("undo");
         Redo.setActionCommand("redo");  //Icons Plagiat!!!
         Speichern.setActionCommand("speichern");
+        Speichern.addActionListener(e -> { zwischenspeichern();});
 
         symbolleiste.add(Undo);
         symbolleiste.add(Redo);
@@ -65,12 +66,15 @@ public class GUI extends JFrame {
 
         menueleiste = new JMenuBar();
         datei = new JMenu("Datei");
-        Speichernmenueleiste = new JMenuItem("Speichern");
+        Speichernmenueleiste = new JMenuItem("Speichern Unter");
+        Speichernmenueleiste.addActionListener(e -> SpeichernUnter());
         Laden = new JMenuItem("Laden");
+        Laden.addActionListener(e -> ladeBild());
         NeueDatei = new JMenuItem("Neue Datei");
         Laden.setActionCommand("laden");
-        Speichernmenueleiste.setActionCommand("speichern");
-        NeueDatei.setActionCommand("neue datei");
+        Speichernmenueleiste.setActionCommand("Speichern Unter");
+        NeueDatei.setActionCommand("neue datei");//hier abfrage ob korrekt
+        NeueDatei.addActionListener(e -> zeichenflaeche.reset());
 
         datei.add(Speichernmenueleiste);
         datei.add(Laden);
@@ -254,7 +258,7 @@ public class GUI extends JFrame {
 
     public void SpeichernUnter() {
         JFileChooser filter = new JFileChooser();
-        filter.setFileFilter(new FileNameExtensionFilter("jpg")); //es werden nur jpg dateien angezeigt
+        filter.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)","jpg")); //es werden nur jpg dateien angezeigt
         if (filter.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn Nutzer speichern will, kann immer noch abbrechen dabei
             File datei = filter.getSelectedFile(); // die datei der der benutzer eingegeben hat
             if (!datei.getName().toLowerCase().endsWith(".jpg"))
@@ -270,7 +274,7 @@ public class GUI extends JFrame {
     }
 
     public void zwischenspeichern() { //Wie Speichernunter ohne festlegen dateinamen
-        if (aktuelleDatei != null) { //Abfrage ob schonmal Speicherortfestgelegt worden ist
+        if (aktuelleDatei == null) { //Abfrage ob schonmal Speicherortfestgelegt worden ist
             SpeichernUnter();
             return;
         }
@@ -284,13 +288,13 @@ public class GUI extends JFrame {
 
     public void ladeBild() {
         JFileChooser sucher = new JFileChooser();
-        sucher.setFileFilter(new FileNameExtensionFilter("jpg")); // es werden nur jpgs angezeigt
+        sucher.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)","jpg")); // es werden nur jpgs angezeigt
         if (sucher.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn nutzer wirklich laden will
             BufferedImage zuladenesBild = null;
             try {
-                zuladenesBild = ImageIO.read(sucher.getSelectedFile()); //
-                zeichenflaeche.setBild(zuladenesBild);
+                zuladenesBild = ImageIO.read(sucher.getSelectedFile());//Nutzer sucht Bild aus welches geladden werden soll
                 zeichenflaeche.reset();
+                zeichenflaeche.setBild(zuladenesBild);
                 zeichenflaeche.repaint();
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Es gab einen Fehler beim Laden des Bildes!");
