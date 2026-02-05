@@ -2,7 +2,10 @@ package org.example;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Arrays;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -247,9 +250,15 @@ public class GUI extends JFrame {
 
         }
     }
-    public void ErstellenNeuerDatei(){
+    public void speichern(){
         JFileChooser filter = new JFileChooser();
         filter.setFileFilter(new FileNameExtensionFilter("jpg")); //es werden nur jpg dateien angezeigt
-
+        if(filter.showSaveDialog(this)==JFileChooser.APPROVE_OPTION){ //Wenn Nutzer speichern will
+           File datei = filter.getSelectedFile();
+           if(!datei.getName().toLowerCase().endsWith(".jpg"))
+               datei = new File(datei.getAbsoluteFile() + ".jpg"); //hiermit wird geprüft ob der Nutzer schon jpg am ende hat wenn nicht wird es angehangen
+            BufferedImage Bild = zeichenflaeche.getBild();
+            ImageIO.write(Bild,"jpg",datei); //damit wird datei erzeugt
+        }
     }
 }
