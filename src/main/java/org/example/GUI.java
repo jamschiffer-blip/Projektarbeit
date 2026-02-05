@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -258,7 +259,11 @@ public class GUI extends JFrame {
            if(!datei.getName().toLowerCase().endsWith(".jpg"))
                datei = new File(datei.getAbsoluteFile() + ".jpg"); //hiermit wird geprüft ob der Nutzer schon jpg am ende hat wenn nicht wird es angehangen
             BufferedImage Bild = zeichenflaeche.getBild();
-            ImageIO.write(Bild,"jpg",datei); //damit wird datei erzeugt
+            try {
+                ImageIO.write(Bild,"jpg",datei); //damit wird datei erzeugt
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this,"es gab einen Fehler beim Speichern!");
+            }
         }
     }
 }
