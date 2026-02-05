@@ -26,6 +26,8 @@ public class GUI extends JFrame {
     private final int Zeichenflaeche_HOEHE = 2000;
     private final int Zeichenflaeche_BREITE = 1500;
     private File aktuelleDatei;
+    private Color hellblau = new Color(200,235,245);
+    private Color textfarbe = new Color(40,40,40);
 
     public GUI() {
         super("Graphic Editor");
@@ -59,10 +61,14 @@ public class GUI extends JFrame {
         symbolleiste.add(Redo);
         symbolleiste.add(Speichern);
         symbolleiste.setLayout(new FlowLayout(FlowLayout.LEFT));
+        symbolleiste.setOpaque(true);
+        symbolleiste.setBackground(hellblau);
 
         leiste = new JPanel();
         leiste.setLayout(new BoxLayout(leiste, BoxLayout.Y_AXIS));
         leiste.add(symbolleiste, BorderLayout.WEST); //hiermit bleibt die leiste immer links in der ecke,auch wenn das fenster vergroessert oder verkleinert wird
+        leiste.setOpaque(true);
+        leiste.setBackground(hellblau);
 
         menueleiste = new JMenuBar();
         datei = new JMenu("Datei");
@@ -75,6 +81,8 @@ public class GUI extends JFrame {
         Speichernmenueleiste.setActionCommand("Speichern Unter");
         NeueDatei.setActionCommand("neue datei");//hier abfrage ob korrekt
         NeueDatei.addActionListener(e -> zeichenflaeche.reset());
+        menueleiste.setOpaque(true);
+        menueleiste.setBackground(hellblau);
 
         datei.add(Speichernmenueleiste);
         datei.add(Laden);
@@ -84,6 +92,11 @@ public class GUI extends JFrame {
         menueleiste.add(datei);
 
         leiste.add(menueleiste);
+
+        datei.setForeground(textfarbe);
+        Speichernmenueleiste.setForeground(textfarbe);
+        Laden.setForeground(textfarbe);
+        NeueDatei.setForeground(textfarbe);
 
 
         add(leiste, BorderLayout.NORTH);
@@ -289,8 +302,8 @@ public class GUI extends JFrame {
     public void ladeBild() {
         JFileChooser sucher = new JFileChooser();
         sucher.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)","jpg")); // es werden nur jpgs angezeigt
-        if (sucher.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn nutzer wirklich laden will
-            BufferedImage zuladenesBild = null;
+        if (sucher.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn nutzer wirklich laden will und nicht zwischen durch abbricht
+            BufferedImage zuladenesBild;
             try {
                 zuladenesBild = ImageIO.read(sucher.getSelectedFile());//Nutzer sucht Bild aus welches geladden werden soll
                 zeichenflaeche.reset();

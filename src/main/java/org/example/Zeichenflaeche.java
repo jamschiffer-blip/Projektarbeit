@@ -84,7 +84,6 @@ public class Zeichenflaeche extends JPanel {
         Kreise.clear();
         Rechtecke.clear();;
         Polygons.clear();
-        setBackground(Color.WHITE);
         repaint();
     }
 
