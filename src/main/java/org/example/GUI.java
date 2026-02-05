@@ -25,6 +25,7 @@ public class GUI extends JFrame {
     private float aktuelleDicke = 2.0f;
     private final int Zeichenflaeche_HOEHE = 1200;
     private final int Zeichenflaeche_BREITE = 1000;
+    private File aktuelleDatei;
 
     public GUI(){
         super("Graphic Editor");
@@ -251,19 +252,32 @@ public class GUI extends JFrame {
 
         }
     }
-    public void speichern(){
+    public void SpeichernUnter(){
         JFileChooser filter = new JFileChooser();
         filter.setFileFilter(new FileNameExtensionFilter("jpg")); //es werden nur jpg dateien angezeigt
-        if(filter.showSaveDialog(this)==JFileChooser.APPROVE_OPTION){ //Wenn Nutzer speichern will
-           File datei = filter.getSelectedFile();
+        if(filter.showSaveDialog(this)==JFileChooser.APPROVE_OPTION){ //Wenn Nutzer speichern will, kann immer noch abbrechen dabei
+           File datei = filter.getSelectedFile(); // die datei der der benutzer eingegeben hat
            if(!datei.getName().toLowerCase().endsWith(".jpg"))
                datei = new File(datei.getAbsoluteFile() + ".jpg"); //hiermit wird geprüft ob der Nutzer schon jpg am ende hat wenn nicht wird es angehangen
             BufferedImage Bild = zeichenflaeche.getBild();
             try {
                 ImageIO.write(Bild,"jpg",datei); //damit wird datei erzeugt
+                aktuelleDatei = datei; //damit ist wenn ich schon enmal richtig gespeiert habe die Datei ungleichnull -Für die Methode zwischen speichern ist das wichtig
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this,"es gab einen Fehler beim Speichern!");
             }
+        }
+    }
+    public void zwischenspeichern(){ //Wie Speichernunter ohne festlegen dateinamen
+        if(aktuelleDatei != null) { //Abfrage ob schonmal Speicherortfestgelegt worden ist
+            SpeichernUnter();
+            return;
+        }
+        BufferedImage Bild = zeichenflaeche.getBild();
+        try {
+            ImageIO.write(Bild,"jpg",aktuelleDatei);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,"es gab einen Fehler beim Speichern!");
         }
     }
 }
