@@ -21,9 +21,9 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste, Laden, NeueDatei;
     private boolean mausgedrueckt = false;
-    private String Modus = "Frei";
+    private String Modus = "Polygon";
     public Zeichenflaeche zeichenflaeche;
-    private Color aktuelleFarbe = Color.YELLOW;
+    private Color aktuelleFarbe = Color.BLACK;
     private float aktuelleDicke = 2.0f;
     private final int Zeichenflaeche_HOEHE = 2000;
     private final int Zeichenflaeche_BREITE = 1500;
@@ -145,8 +145,18 @@ public class GUI extends JFrame {
                     yKoordinatenPolygon[counterPolygon] = e.getY();
                     counterPolygon++;
                 }
+                //Hier Preview
+                if(counterPolygon>=2){
+                    int[] xKoordinatenPreview = Arrays.copyOf(xKoordinatenPolygon,counterPolygon);
+                    int[] yKoordinatenPreview = Arrays.copyOf(yKoordinatenPolygon,counterPolygon);
+                    Polygon previewPolygon = new Polygon(xKoordinatenPreview,yKoordinatenPreview);
+                    previewPolygon.setDicke(aktuelleDicke);
+                    previewPolygon.setFarbe(aktuelleFarbe);
+                    zeichenflaeche.setPreviewPolygon(previewPolygon);
+                }
                 if (counterPolygon >= 3 && e.getClickCount() == 2) //Clickcount==2 da man dann mit einem Doppelklick das Polygon abschliessen kann
                 {
+                    zeichenflaeche.clearPreviewPolygon();
                     int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon, counterPolygon);
                     int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
                     Polygon polygon = new Polygon(xKoordinaten, yKoordinaten);
@@ -208,6 +218,7 @@ public class GUI extends JFrame {
                 }
             }
             if (Modus.equals("Ellipse")) {
+                zeichenflaeche.clearPreviewEllipse();
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
 
@@ -221,6 +232,7 @@ public class GUI extends JFrame {
                 zeichenflaeche.zeichneEllipse(ellipse);
             }
             if (Modus.equals("Kreis")) {
+                zeichenflaeche.clearPreviewKreis();
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
                 double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
@@ -234,6 +246,7 @@ public class GUI extends JFrame {
                 zeichenflaeche.zeichneKreis(kreis);
             }
             if (Modus.equals("Rechteck")) {
+                zeichenflaeche.clearPreviewRechteck();
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
 
@@ -260,6 +273,7 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseDragged(MouseEvent e) {
+
             if (Modus.equals("Frei")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
@@ -276,6 +290,47 @@ public class GUI extends JFrame {
             }
             if (Modus.equals("Radieren")) {
 
+            }
+            //vorschau
+            if(Modus.equals("Kreis")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
+                double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
+                        + (StartyKoordinate - EndYKoordinate) * (StartyKoordinate - EndYKoordinate)); // Berechnung radius mithilfe Pythagoras
+                int radius = (int) radiusinDouble;
+                int xKoordinate = StartxKoordinate - radius; // Berechnung der Koordinaten des Mittelpunktes
+                int yKoordinate = StartyKoordinate - radius;
+                Kreis previewkreis = new Kreis(radius * 2, xKoordinate, yKoordinate);
+                previewkreis.setFarbe(aktuelleFarbe);
+                previewkreis.setDicke(aktuelleDicke);
+                zeichenflaeche.setPreviewKreis(previewkreis);
+
+            }
+            if(Modus.equals("Rechteck")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
+
+                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
+                Rechteck previewrechteck = new Rechteck(xKoordinate, yKoordinate, breite, hoehe);
+                previewrechteck.setFarbe(aktuelleFarbe);
+                previewrechteck.setDicke(aktuelleDicke);
+                zeichenflaeche.setPreviewRechteck(previewrechteck);
+            }
+            if(Modus.equals("Ellipse")){
+                EndXKoordinate = e.getX();
+                EndYKoordinate = e.getY();
+
+                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate); // hier dasselbe nur für die hoehe statt breite
+                Ellipse ellipse = new Ellipse(xKoordinate, yKoordinate, breite, hoehe);
+                ellipse.setFarbe(aktuelleFarbe);
+                ellipse.setDicke(aktuelleDicke);
+                zeichenflaeche.setPreviewEllipse(ellipse);
             }
         }
 

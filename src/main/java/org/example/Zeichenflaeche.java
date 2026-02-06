@@ -15,6 +15,11 @@ public class Zeichenflaeche extends JPanel {
     public List<Polygon> Polygons;
     private BufferedImage Bild;
     private Zustandsspeicher zustandsspeicher = new Zustandsspeicher();
+    private Kreis previewKreis;
+    private Linie previewLinie;
+    private Ellipse previewEllipse;
+    private Rechteck previewRechteck;
+    private Polygon previewPolygon;
 
 
     public Zeichenflaeche() {
@@ -30,17 +35,20 @@ public class Zeichenflaeche extends JPanel {
                     Linien.add(linie);
                     repaint();
                 },
-                ()-> {Linien.remove(linie);
+                ()-> {
+                    Linien.remove(linie);
                     repaint();
                 }
                 );
     }
     public void zeichneLinie(List<Linie> Linien){ //fuer den Modus Frei dann wird ein kompletter strcih entfernt,
         zustandsspeicher.fuehreaus(
-                () -> {this.Linien.addAll(Linien);      //da es mehrere Listen mit dem namen Linien gibt
-                repaint();
+                () -> {
+                    this.Linien.addAll(Linien);      //da es mehrere Listen mit dem namen Linien gibt
+                    repaint();
                 },
-                () -> { this.Linien.removeAll(Linien);
+                () -> {
+                    this.Linien.removeAll(Linien);
                     repaint();
 
                 }
@@ -52,7 +60,8 @@ public class Zeichenflaeche extends JPanel {
                     Ellipsen.add(ellipse);
                     repaint();
                 },
-                ()-> {Ellipsen.remove(ellipse);
+                ()-> {
+                    Ellipsen.remove(ellipse);
                     repaint();
                 }
         );
@@ -63,7 +72,8 @@ public class Zeichenflaeche extends JPanel {
                     Kreise.add(kreis);
                     repaint();
                 },
-                ()-> {Kreise.remove(kreis);
+                ()-> {
+                    Kreise.remove(kreis);
                     repaint();
                 }
         );
@@ -132,6 +142,31 @@ public class Zeichenflaeche extends JPanel {
             grafik.setColor(polygon.getFarbe());
             grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
         }
+        if(previewLinie!=null){
+            grafik.setStroke(new BasicStroke(previewLinie.getDicke())); //als Methode schreiben evtl
+            grafik.setColor(previewLinie.getFarbe());
+            grafik.drawLine(previewLinie.getStartX(),previewLinie.getStartY(),previewLinie.getEndX(), previewLinie.getEndY());
+        }
+        if(previewKreis != null){
+            grafik.setStroke(new BasicStroke(previewKreis.getDicke()));
+            grafik.setColor(previewKreis.getFarbe());
+            grafik.drawOval(previewKreis.getxKoordinate(),previewKreis.getyKoordinate(),previewKreis.getDurchmesser(), previewKreis.getDurchmesser() );
+        }
+        if(previewPolygon != null){
+            grafik.setStroke(new BasicStroke(previewPolygon.getDicke()));
+            grafik.setColor(previewPolygon.getFarbe());
+            grafik.drawPolygon(previewPolygon.getxKoordinaten(),previewPolygon.getyKoordinaten(), previewPolygon.getAnzahlPunkte());
+        }
+        if(previewRechteck != null){
+            grafik.setStroke(new BasicStroke(previewRechteck.getDicke()));
+            grafik.setColor(previewRechteck.getFarbe());
+            grafik.drawRect(previewRechteck.getxKoordinate(),previewRechteck.getyKoordinate(),previewRechteck.getBreite(),previewRechteck.getHoehe());
+        }
+        if(previewEllipse != null){
+            grafik.setStroke(new BasicStroke(previewEllipse.getDicke()));
+            grafik.setColor(previewEllipse.getFarbe());
+            grafik.drawOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
+        }
     }
     public void reset(){
         Linien.clear();;
@@ -188,5 +223,45 @@ public class Zeichenflaeche extends JPanel {
     }
     public BufferedImage getBild(){
         return Bild;
+    }
+    public void setPreviewKreis(Kreis kreis){
+        previewKreis = kreis;
+        repaint();
+    }
+    public void clearPreviewKreis(){
+        previewKreis = null;
+        repaint();
+    }
+    public void setPreviewLinie(Linie linie){
+        previewLinie = linie;
+        repaint();
+    }
+    public void clearPreviewLinie(){
+        previewLinie = null;
+        repaint();
+    }
+    public void setPreviewEllipse(Ellipse ellipse){
+        previewEllipse = ellipse;
+        repaint();
+    }
+    public void clearPreviewEllipse(){
+        previewEllipse = null;
+        repaint();
+    }
+    public void setPreviewRechteck(Rechteck rechteck){
+        previewRechteck = rechteck;
+        repaint();
+    }
+    public void clearPreviewRechteck(){
+        previewRechteck = null;
+        repaint();
+    }
+    public void setPreviewPolygon(Polygon polygon){
+        previewPolygon = polygon;
+        repaint();
+    }
+    public void clearPreviewPolygon(){
+        previewPolygon = null;
+        repaint();
     }
 }

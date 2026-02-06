@@ -3,12 +3,12 @@ package org.example;
 import java.util.Stack;
 
 public class Zustandsspeicher {
-    private Stack<Aktion> UndoStack = new Stack<>();//runnable um Zustandsspeicherung zu ermöglichen als Objekte,Stack eignet sich wegen Last in Firdt Out Prinzip
+    private Stack<Aktion> UndoStack = new Stack<>();//Stack ermöglicht Last in Firdt Out Prinzip
     private Stack<Aktion> RedoStack = new Stack<>();
     private Aktion letzteAktion,letztezurueckgemachteAktion;
 
-    public void fuehreaus(Runnable fuegehinzu,Runnable vorherigeZeichnung){
-        Aktion aktion = new Aktion(fuegehinzu,vorherigeZeichnung);
+    public void fuehreaus(Runnable fuegehinzu,Runnable macherueckgaengig){
+        Aktion aktion = new Aktion(fuegehinzu,macherueckgaengig);
         aktion.zeichne.run(); //Jetzt zeichnet der Nutzer mit der Methode
         UndoStack.push(aktion);
         RedoStack.clear(); //hiermit wird nach einer Änderung es nicht möglkich gemacht Redo doch einmal zu benutzen
