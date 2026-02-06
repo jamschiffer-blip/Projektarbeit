@@ -55,6 +55,8 @@ public class GUI extends JFrame {
         Undo.setActionCommand("undo");
         Redo.setActionCommand("redo");  //Icons Plagiat!!!
         Speichern.setActionCommand("speichern");
+        Undo.addActionListener(e -> zeichenflaeche.undo());
+        Redo.addActionListener(e -> zeichenflaeche.redo());
         Speichern.addActionListener(e -> { zwischenspeichern();});
 
         symbolleiste.add(Undo);

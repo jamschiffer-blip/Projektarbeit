@@ -14,6 +14,7 @@ public class Zeichenflaeche extends JPanel {
     public List<Rechteck> Rechtecke;
     public List<Polygon> Polygons;
     private BufferedImage Bild;
+    private Zustandsspeicher zustandsspeicher;
 
 
     public Zeichenflaeche() {
@@ -24,24 +25,67 @@ public class Zeichenflaeche extends JPanel {
         Polygons = new ArrayList<>();
     }
     public void zeichneLinie(Linie linie){
-        Linien.add(linie);
-        repaint();
+        zustandsspeicher.fuehreaus(
+                () -> {
+                    Linien.add(linie);
+                    repaint();
+                },
+                ()-> {Linien.remove(linie);
+                    repaint();
+                }
+                );
     }
     public void zeichneEllipse(Ellipse ellipse){
-        Ellipsen.add(ellipse);
-        repaint();
+        zustandsspeicher.fuehreaus(
+                () -> {
+                    Ellipsen.add(ellipse);
+                    repaint();
+                },
+                ()-> {Ellipsen.remove(ellipse);
+                    repaint();
+                }
+        );
     }
     public void zeichneKreis(Kreis kreis){
-        Kreise.add(kreis);
-        repaint();
+        zustandsspeicher.fuehreaus(
+                () -> {
+                    Kreise.add(kreis);
+                    repaint();
+                },
+                ()-> {Kreise.remove(kreis);
+                    repaint();
+                }
+        );
     }
     public void zeichneRechteck(Rechteck rechteck){
-        Rechtecke.add(rechteck);
-        repaint();
+        zustandsspeicher.fuehreaus(
+                () -> {
+                    Rechtecke.add(rechteck);
+                    repaint();
+                },
+                ()-> {
+                    Rechtecke.remove(rechteck);
+                    repaint();
+                }
+        );
     }
     public void zeichnePolygon(Polygon polygon){
-        Polygons.add(polygon);
-        repaint();
+        zustandsspeicher.fuehreaus(
+                () -> {
+                    Polygons.add(polygon);
+                    repaint();
+                },
+                ()-> {
+                    Polygons.remove(polygon);
+                    repaint();
+                }
+        );
+    }
+    public void undo(){
+        zustandsspeicher.undo();
+    }
+    public void redo(){
+        zustandsspeicher.redo();
     }
 
     @Override
