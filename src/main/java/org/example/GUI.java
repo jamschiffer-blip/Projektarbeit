@@ -5,7 +5,9 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -28,6 +30,7 @@ public class GUI extends JFrame {
     private File aktuelleDatei;
     private Color hellblau = new Color(200,235,245);
     private Color textfarbe = new Color(40,40,40);
+    private ArrayList<Linie> aktuelleLinie = new ArrayList<>();
 
     public GUI() {
         super("Graphic Editor");
@@ -162,6 +165,7 @@ public class GUI extends JFrame {
         @Override
         public void mousePressed(MouseEvent e) {
             if (Modus.equals("Frei")) {
+                aktuelleLinie.clear(); //Liste der ganz vielen kleinen Striche die ein grossen Strich bilden wird leer gemacht
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
             }
@@ -196,6 +200,13 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) {
+            if(Modus.equals("Frei")){
+                if(!aktuelleLinie.isEmpty()){
+                    zeichenflaeche.Linien.removeAll(aktuelleLinie); //damit werden alle Linien die als Preview dienen gelöscht um Un und redo möglichzumache
+                    zeichenflaeche.zeichneLinie(new ArrayList<>(aktuelleLinie)); // es wird die methode zeichnelinie für eine edngültige linie aufgerufen
+                    aktuelleLinie.clear();
+                }
+            }
             if (Modus.equals("Ellipse")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
@@ -255,7 +266,10 @@ public class GUI extends JFrame {
                 Linie linie = new Linie(StartxKoordinate, StartyKoordinate, EndXKoordinate, EndYKoordinate);
                 linie.setFarbe(aktuelleFarbe);
                 linie.setDicke(aktuelleDicke);
-                zeichenflaeche.zeichneLinie(linie);
+                //das dient als Preview für das freie zeichnen
+                aktuelleLinie.add(linie);
+                zeichenflaeche.Linien.add(linie);
+                repaint();
 
                 StartxKoordinate = EndXKoordinate; //Damit werden ganz viele kleine Linien verbunden zu einer großen
                 StartyKoordinate = EndYKoordinate;

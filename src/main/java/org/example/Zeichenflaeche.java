@@ -14,7 +14,7 @@ public class Zeichenflaeche extends JPanel {
     public List<Rechteck> Rechtecke;
     public List<Polygon> Polygons;
     private BufferedImage Bild;
-    private Zustandsspeicher zustandsspeicher;
+    private Zustandsspeicher zustandsspeicher = new Zustandsspeicher();
 
 
     public Zeichenflaeche() {
@@ -24,7 +24,7 @@ public class Zeichenflaeche extends JPanel {
         Rechtecke = new ArrayList<>();
         Polygons = new ArrayList<>();
     }
-    public void zeichneLinie(Linie linie){
+    public void zeichneLinie(Linie linie){ //nur für gerade Linie
         zustandsspeicher.fuehreaus(
                 () -> {
                     Linien.add(linie);
@@ -34,6 +34,17 @@ public class Zeichenflaeche extends JPanel {
                     repaint();
                 }
                 );
+    }
+    public void zeichneLinie(List<Linie> Linien){ //fuer den Modus Frei dann wird ein kompletter strcih entfernt,
+        zustandsspeicher.fuehreaus(
+                () -> {this.Linien.addAll(Linien);      //da es mehrere Listen mit dem namen Linien gibt
+                repaint();
+                },
+                () -> { this.Linien.removeAll(Linien);
+                    repaint();
+
+                }
+        );
     }
     public void zeichneEllipse(Ellipse ellipse){
         zustandsspeicher.fuehreaus(
