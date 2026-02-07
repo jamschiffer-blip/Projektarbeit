@@ -114,7 +114,7 @@ public class Zeichenflaeche extends JPanel {
     protected void paintComponent(Graphics g) { //überschreiben von paintcomponent anstatt graphics2d wäre sonst zzu gross
         super.paintComponent(g);
         Graphics2D grafik = (Graphics2D) g ;
-        grafik.setColor(getHintergrundfarbe());
+        grafik.setColor(getHintergrundfarbe());  //hierbei wird die Zeichenfläche mit der jeweiligen Hintergrundfarbeübermalt
         grafik.fillRect(0,0,getWidth(),getHeight());
 
         if(Bild != null){
@@ -178,6 +178,7 @@ public class Zeichenflaeche extends JPanel {
         Kreise.clear();
         Rechtecke.clear();;
         Polygons.clear();
+        setHintergrundfarbe(getHintergrundfarbe());
         repaint();
     }
 
@@ -188,6 +189,8 @@ public class Zeichenflaeche extends JPanel {
         //Jetzt wird das Bild nachgemalt und anschließend gespüeichert
         grafik.setColor(getHintergrundfarbe());
         grafik.fillRect(0,0,getWidth(),getHeight()); //Zeichenfläche wird dabei mit Hintergrundfarbe übermalt
+
+
 
         for(Linie linie : Linien){
             grafik.setStroke(new BasicStroke(linie.getDicke()));
@@ -233,6 +236,8 @@ public class Zeichenflaeche extends JPanel {
 
     public void setBild(BufferedImage bild) {
         Bild = bild;
+        setPreferredSize(new Dimension(Bild.getWidth(),Bild.getHeight())); //Die zeichenflaeche wird damit so groß wie das gespeierte Bild,damit wird es 1:1 wenn es geladen wird
+        revalidate(); //Neuberechnung für Layout
         repaint();
     }
     public BufferedImage getBild(){

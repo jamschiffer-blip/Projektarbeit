@@ -21,7 +21,7 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste, Laden, NeueDatei;
     private boolean mausgedrueckt = false;
-    private String Modus = "Radiere";
+    private String Modus = "Frei";
     public Zeichenflaeche zeichenflaeche;
     private Color aktuelleFarbe = Color.BLACK;
     private float aktuelleDicke = 2.0f;
@@ -31,6 +31,9 @@ public class GUI extends JFrame {
     private Color hellblau = new Color(200,235,245);
     private Color textfarbe = new Color(40,40,40);
     private ArrayList<Linie> aktuelleLinie = new ArrayList<>();
+    private boolean Aenderungengespeichert = true;
+    private JPanel Aenderungenungespeichertfenster;
+    private JDialog dialog;
 
     public GUI() {
         super("Graphic Editor");
@@ -41,7 +44,7 @@ public class GUI extends JFrame {
         MeinListener listener = new MeinListener();
         zeichenflaeche.addMouseListener(listener);
         zeichenflaeche.addMouseMotionListener(listener);
-
+        addWindowListener(listener);
 
         setLayout(new BorderLayout());
 
@@ -60,7 +63,8 @@ public class GUI extends JFrame {
         Speichern.setActionCommand("speichern");
         Undo.addActionListener(e -> zeichenflaeche.undo());
         Redo.addActionListener(e -> zeichenflaeche.redo());
-        Speichern.addActionListener(e -> { zwischenspeichern();});
+        Speichern.addActionListener(e -> { zwischenspeichern();
+        Aenderungengespeichert = true;});
 
         symbolleiste.add(Undo);
         symbolleiste.add(Redo);
@@ -78,14 +82,15 @@ public class GUI extends JFrame {
         menueleiste = new JMenuBar();
         datei = new JMenu("Datei");
         Speichernmenueleiste = new JMenuItem("Speichern Unter");
-        Speichernmenueleiste.addActionListener(e -> SpeichernUnter());
+        Speichernmenueleiste.addActionListener(e ->{ SpeichernUnter();
+            Aenderungengespeichert = true;});
         Laden = new JMenuItem("Laden");
         Laden.addActionListener(e -> ladeBild());
         NeueDatei = new JMenuItem("Neue Datei");
         Laden.setActionCommand("laden");
         Speichernmenueleiste.setActionCommand("Speichern Unter");
         NeueDatei.setActionCommand("neue datei");//hier abfrage ob korrekt
-        NeueDatei.addActionListener(e -> zeichenflaeche.reset());
+        NeueDatei.addActionListener(listener);
         menueleiste.setOpaque(true);
         menueleiste.setBackground(hellblau);
 
@@ -104,16 +109,45 @@ public class GUI extends JFrame {
         NeueDatei.setForeground(textfarbe);
 
 
+        //Erstellen eines Fensters falls Änderungen ungespeichert sind
+         Aenderungenungespeichertfenster = new JPanel();
+        JPanel text = new JPanel();
+        JPanel buttons = new JPanel();
+        JLabel ungespeicherttext = new JLabel("Die Änderungen wurden nicht gespeichert");
+        JButton speichern = new JButton("Speichern");
+        JButton verwerfen = new JButton("Aenderungen verwerfen");
+        speichern.addActionListener(e -> {
+            Aenderungengespeichert = true;
+            if(aktuelleDatei==null){
+                SpeichernUnter();
+            }
+            else zwischenspeichern();
+            zeichenflaeche.reset();
+            dialog.dispose();
+        });
+        verwerfen.addActionListener(e -> {
+            zeichenflaeche.reset();
+            dialog.dispose();
+        });
+        Aenderungenungespeichertfenster.setLayout(new GridLayout(2,1,50,50));
+        text.add(ungespeicherttext);
+        buttons.setLayout(new GridLayout(1,2,50,50));
+        buttons.add(speichern);
+        buttons.add(verwerfen);
+        Aenderungenungespeichertfenster.add(text);
+        Aenderungenungespeichertfenster.add(buttons);
+
+
         add(leiste, BorderLayout.NORTH);
         add(zeichenflaeche, BorderLayout.CENTER);
         pack();
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //um Pop up zuerstellen falls es änderungen gibt
         setVisible(true);
 
     }
 
-    class MeinListener implements ActionListener, MouseListener, MouseMotionListener {
+    class MeinListener implements ActionListener, MouseListener, MouseMotionListener, WindowListener {
 
 
         int counter = 0;
@@ -127,9 +161,25 @@ public class GUI extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            //ABfrage ob wirklich neue Datei erstellt werden soll
+            if(e.getActionCommand().equals("neue datei")){
+            if(Aenderungengespeichert ) {
+                zeichenflaeche.reset(); //Soll wirklich neue datei angelegt werden
+            }
+            if( !Aenderungengespeichert) { //Wenn es ungespeicherte Änderungen gab kommt popuüp
+                JOptionPane ungespeicherteAenderungen = new JOptionPane(
 
+                        Aenderungenungespeichertfenster,
+                        JOptionPane.PLAIN_MESSAGE,
+                        JOptionPane.DEFAULT_OPTION,
+                        null,
+                        new Object[]{} //wichtig da sonst OK Button gibt
+                );
+                dialog = ungespeicherteAenderungen.createDialog(GUI.this,"Änderungen ungespeichert");
+                dialog.setVisible(true);
+            }
         }
-
+        }
         @Override
         public void mouseClicked(MouseEvent e) {
             double distanz;
@@ -157,6 +207,7 @@ public class GUI extends JFrame {
                 if (counterPolygon >= 3 && e.getClickCount() == 2) //Clickcount==2 da man dann mit einem Doppelklick das Polygon abschliessen kann
                 {
                     zeichenflaeche.clearPreviewPolygon();
+                    Aenderungengespeichert = false;
                     int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon, counterPolygon);
                     int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
                     Polygon polygon = new Polygon(xKoordinaten, yKoordinaten);
@@ -178,9 +229,11 @@ public class GUI extends JFrame {
                 aktuelleLinie.clear(); //Liste der ganz vielen kleinen Striche die ein grossen Strich bilden wird leer gemacht
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
+                Aenderungengespeichert = false;
             }
 
             if (Modus.equals("Gerade")) {
+
                 switch (counter) {
                     case 0:
                         counter++;
@@ -197,6 +250,7 @@ public class GUI extends JFrame {
                         linie.setFarbe(aktuelleFarbe);
                         linie.setDicke(aktuelleDicke);
                         zeichenflaeche.zeichneLinie(linie);
+                        Aenderungengespeichert = false;
                         break;
 
 
@@ -205,6 +259,7 @@ public class GUI extends JFrame {
             if (Modus.equals("Ellipse") || Modus.equals("Kreis") || Modus.equals("Rechteck")) {
                 StartxKoordinate = e.getX();
                 StartyKoordinate = e.getY();
+
             }
         }
 
@@ -213,7 +268,8 @@ public class GUI extends JFrame {
             if(Modus.equals("Frei")){
                 if(!aktuelleLinie.isEmpty()){
                     zeichenflaeche.Linien.removeAll(aktuelleLinie); //damit werden alle Linien die als Preview dienen gelöscht um Un und redo möglichzumache
-                    zeichenflaeche.zeichneLinie(new ArrayList<>(aktuelleLinie)); // es wird die methode zeichnelinie für eine edngültige linie aufgerufen
+                    zeichenflaeche.zeichneLinie(new ArrayList<>(aktuelleLinie));// es wird die methode zeichnelinie für eine edngültige linie aufgerufen
+                    Aenderungengespeichert = false;
                     aktuelleLinie.clear();
                 }
             }
@@ -233,6 +289,7 @@ public class GUI extends JFrame {
             }
             if (Modus.equals("Kreis")) {
                 zeichenflaeche.clearPreviewKreis();
+                Aenderungengespeichert = false;
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
                 double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
@@ -247,6 +304,7 @@ public class GUI extends JFrame {
             }
             if (Modus.equals("Rechteck")) {
                 zeichenflaeche.clearPreviewRechteck();
+                Aenderungengespeichert = false;
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
 
@@ -290,6 +348,7 @@ public class GUI extends JFrame {
             }
             if (Modus.equals("Radiere")) {
                 zeichenflaeche.radiere(e.getX(),e.getY());
+                Aenderungengespeichert = false;
             }
             //vorschau
             if(Modus.equals("Kreis")){
@@ -336,6 +395,53 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseMoved(MouseEvent e) {
+
+        }
+
+        @Override
+        public void windowOpened(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowClosing(WindowEvent e) {
+            if(!Aenderungengespeichert){
+                JOptionPane ungespeicherteAenderungen = new JOptionPane(
+
+                        Aenderungenungespeichertfenster,
+                        JOptionPane.PLAIN_MESSAGE,
+                        JOptionPane.DEFAULT_OPTION,
+                        null,
+                        new Object[]{} //wichtig da sonst OK Button gibt
+                );
+                dialog = ungespeicherteAenderungen.createDialog(GUI.this,"Änderungen ungespeichert");
+                dialog.setVisible(true);
+            }
+            GUI.this.dispose(); //Hauptfenster wird geschlossen
+        }
+
+        @Override
+        public void windowClosed(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowIconified(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowDeiconified(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowActivated(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowDeactivated(WindowEvent e) {
 
         }
     }
@@ -387,4 +493,5 @@ public class GUI extends JFrame {
 
         }
     }
+
 }
