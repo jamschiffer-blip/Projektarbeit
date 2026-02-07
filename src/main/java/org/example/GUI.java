@@ -21,7 +21,7 @@ public class GUI extends JFrame {
     private JMenu datei;
     private JMenuItem Speichernmenueleiste, Laden, NeueDatei;
     private boolean mausgedrueckt = false;
-    private String Modus = "Polygon";
+    private String Modus = "Radiere";
     public Zeichenflaeche zeichenflaeche;
     private Color aktuelleFarbe = Color.BLACK;
     private float aktuelleDicke = 2.0f;
@@ -288,8 +288,8 @@ public class GUI extends JFrame {
                 StartxKoordinate = EndXKoordinate; //Damit werden ganz viele kleine Linien verbunden zu einer großen
                 StartyKoordinate = EndYKoordinate;
             }
-            if (Modus.equals("Radieren")) {
-
+            if (Modus.equals("Radiere")) {
+                zeichenflaeche.radiere(e.getX(),e.getY());
             }
             //vorschau
             if(Modus.equals("Kreis")){

@@ -20,7 +20,8 @@ public class Zeichenflaeche extends JPanel {
     private Ellipse previewEllipse;
     private Rechteck previewRechteck;
     private Polygon previewPolygon;
-
+    private Color Hintergrundfarbe = Color.WHITE; //Weiss als Standardfarbe
+    private int Radierradius = 10;
 
     public Zeichenflaeche() {
         Linien = new ArrayList<>();//hier werden die Linien die gezeichnet werden erstgespeichert
@@ -113,6 +114,9 @@ public class Zeichenflaeche extends JPanel {
     protected void paintComponent(Graphics g) { //überschreiben von paintcomponent anstatt graphics2d wäre sonst zzu gross
         super.paintComponent(g);
         Graphics2D grafik = (Graphics2D) g ;
+        grafik.setColor(getHintergrundfarbe());
+        grafik.fillRect(0,0,getWidth(),getHeight());
+
         if(Bild != null){
             grafik.drawImage(Bild,0,0,null); //Wenn es Bild gibt das geladen wurde wird es gezeichnet
         }
@@ -182,8 +186,8 @@ public class Zeichenflaeche extends JPanel {
         Graphics2D grafik = Bild.createGraphics(); //hiermit kann man im BufferedImage zeichnen
 
         //Jetzt wird das Bild nachgemalt und anschließend gespüeichert
-        grafik.setColor(Color.WHITE);
-        grafik.fillRect(0,0,getWidth(),getHeight()); //Hintergrundfrabe wird zu weiß
+        grafik.setColor(getHintergrundfarbe());
+        grafik.fillRect(0,0,getWidth(),getHeight()); //Zeichenfläche wird dabei mit Hintergrundfarbe übermalt
 
         for(Linie linie : Linien){
             grafik.setStroke(new BasicStroke(linie.getDicke()));
@@ -215,6 +219,16 @@ public class Zeichenflaeche extends JPanel {
 
 
         return Bild;
+    }
+    public void radiere(int xKoordinate,int yKoordinate){
+        Graphics2D grafik = Bild.createGraphics(); //Damit kann ich auf geladenem Bild malen
+        int radius = getRadierradius();
+        int durchmesser = 2*radius;
+        Color Radierfarbe = getHintergrundfarbe();
+        grafik.setColor(Radierfarbe);
+        grafik.setComposite(AlphaComposite.SrcOver); // Damit kann ich über die geladenen Pixel malen
+        grafik.fillOval(xKoordinate-radius,yKoordinate-radius,durchmesser,durchmesser); //ganzer Kreis wird in der Hintergrundfarbe gezeichnet x-r und y-r ,da der mittelpunkt sonst nicht bei x und y wären
+        repaint();
     }
 
     public void setBild(BufferedImage bild) {
@@ -263,5 +277,21 @@ public class Zeichenflaeche extends JPanel {
     public void clearPreviewPolygon(){
         previewPolygon = null;
         repaint();
+    }
+
+    public Color getHintergrundfarbe() {
+        return Hintergrundfarbe;
+    }
+
+    public void setHintergrundfarbe(Color hintergrundfarbe) {
+        Hintergrundfarbe = hintergrundfarbe;
+    }
+
+    public int getRadierradius() {
+        return Radierradius;
+    }
+
+    public void setRadierradius(int radierradius) {
+        Radierradius = radierradius;
     }
 }
