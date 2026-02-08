@@ -31,8 +31,8 @@ public class GUI extends JFrame {
     private Color hellblau = new Color(200,235,245);
     private Color textfarbe = new Color(40,40,40);
     private ArrayList<Linie> aktuelleLinie = new ArrayList<>();
-    private boolean Aenderungengespeichert = true;
-    private JPanel Aenderungenungespeichertfenster;
+    private boolean Aenderungengespeichert = true, neuesFenstererstellen = false;
+    private JPanel Aenderungenungespeichertfenster,neueDateierstellenfenster;
     private JDialog dialog;
 
     public GUI() {
@@ -109,10 +109,33 @@ public class GUI extends JFrame {
         NeueDatei.setForeground(textfarbe);
 
 
-        //Erstellen eines Fensters falls Änderungen ungespeichert sind
-         Aenderungenungespeichertfenster = new JPanel();
+        //Erstellen eines Fensters falls neue Datei erstellt werden soll
+        neueDateierstellenfenster = new JPanel();
         JPanel text = new JPanel();
         JPanel buttons = new JPanel();
+        JLabel neueDatei = new JLabel("Soll eine neue Datei erstellt werden?");
+        JButton erstellen = new JButton("Ja");
+        JButton nichterstellen = new JButton("Nein");
+        erstellen.addActionListener(e -> {
+            neuesFenstererstellen = true;
+            dialog.dispose();
+        });
+        nichterstellen.addActionListener(e -> {
+            neuesFenstererstellen = false;
+            dialog.dispose();
+        });
+        neueDateierstellenfenster.setLayout(new GridLayout(2,1,50,50));
+        text.add(neueDatei);
+        buttons.setLayout(new GridLayout(1,2,50,50));
+        buttons.add(erstellen);
+        buttons.add(nichterstellen);
+        neueDateierstellenfenster.add(text);
+        neueDateierstellenfenster.add(buttons);
+
+        //Erstellen eines Fensters falls Änderungen ungespeichert sind
+         Aenderungenungespeichertfenster = new JPanel();
+        JPanel textfenster2 = new JPanel();
+        JPanel buttonsfenster2 = new JPanel();
         JLabel ungespeicherttext = new JLabel("Die Änderungen wurden nicht gespeichert");
         JButton speichern = new JButton("Speichern");
         JButton verwerfen = new JButton("Aenderungen verwerfen");
@@ -130,12 +153,12 @@ public class GUI extends JFrame {
             dialog.dispose();
         });
         Aenderungenungespeichertfenster.setLayout(new GridLayout(2,1,50,50));
-        text.add(ungespeicherttext);
-        buttons.setLayout(new GridLayout(1,2,50,50));
-        buttons.add(speichern);
-        buttons.add(verwerfen);
-        Aenderungenungespeichertfenster.add(text);
-        Aenderungenungespeichertfenster.add(buttons);
+        textfenster2.add(ungespeicherttext);
+        buttonsfenster2.setLayout(new GridLayout(1,2,50,50));
+        buttonsfenster2.add(speichern);
+        buttonsfenster2.add(verwerfen);
+        Aenderungenungespeichertfenster.add(textfenster2);
+        Aenderungenungespeichertfenster.add(buttonsfenster2);
 
 
         add(leiste, BorderLayout.NORTH);
@@ -163,21 +186,46 @@ public class GUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             //ABfrage ob wirklich neue Datei erstellt werden soll
             if(e.getActionCommand().equals("neue datei")){
-            if(Aenderungengespeichert ) {
-                zeichenflaeche.reset(); //Soll wirklich neue datei angelegt werden
-            }
-            if( !Aenderungengespeichert) { //Wenn es ungespeicherte Änderungen gab kommt popuüp
-                JOptionPane ungespeicherteAenderungen = new JOptionPane(
 
-                        Aenderungenungespeichertfenster,
-                        JOptionPane.PLAIN_MESSAGE,
-                        JOptionPane.DEFAULT_OPTION,
-                        null,
-                        new Object[]{} //wichtig da sonst OK Button gibt
-                );
-                dialog = ungespeicherteAenderungen.createDialog(GUI.this,"Änderungen ungespeichert");
-                dialog.setVisible(true);
-            }
+                if(Aenderungengespeichert) {
+                    JOptionPane PopupneuesFenstererstellen = new JOptionPane(
+
+                            neueDateierstellenfenster,
+                            JOptionPane.PLAIN_MESSAGE,
+                            JOptionPane.DEFAULT_OPTION,
+                            null,
+                            new Object[]{} //wichtig da sonst OK Button gibt
+                    );
+                    dialog = PopupneuesFenstererstellen.createDialog(GUI.this,"Neues Fenster erstellen?");
+                    dialog.setVisible(true);
+                    if(neuesFenstererstellen) zeichenflaeche.reset();
+                } //Soll wirklich neue datei angelegt werden
+
+
+                if( !Aenderungengespeichert) { //Wenn es ungespeicherte Änderungen gab kommt popuüp
+                    JOptionPane PopupneuesFenstererstellen = new JOptionPane(
+
+                            neueDateierstellenfenster,
+                            JOptionPane.PLAIN_MESSAGE,
+                            JOptionPane.DEFAULT_OPTION,
+                            null,
+                            new Object[]{} //wichtig da sonst OK Button gibt
+                    );
+                    dialog = PopupneuesFenstererstellen.createDialog(GUI.this, "Neues Fenster erstellen");
+                    dialog.setVisible(true);
+                    if (neuesFenstererstellen) { //nur wenn wirklich ein neues Fenster erstellt werden soll kommt die Abfrage ob man die Änderungen speichern will
+                        JOptionPane ungespeicherteAenderungen = new JOptionPane(
+
+                                Aenderungenungespeichertfenster,
+                                JOptionPane.PLAIN_MESSAGE,
+                                JOptionPane.DEFAULT_OPTION,
+                                null,
+                                new Object[]{} //wichtig da sonst OK Button gibt
+                        );
+                        dialog = ungespeicherteAenderungen.createDialog(GUI.this, "Änderungen ungespeichert");
+                        dialog.setVisible(true);
+                    }
+                }
         }
         }
         @Override
