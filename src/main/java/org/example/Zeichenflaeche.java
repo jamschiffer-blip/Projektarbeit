@@ -13,6 +13,7 @@ public class Zeichenflaeche extends JPanel {
     public List<Kreis> Kreise;
     public List<Rechteck> Rechtecke;
     public List<Polygon> Polygons;
+    public List<Point> Radiererpunkte;
     private BufferedImage Bild;
     private Zustandsspeicher zustandsspeicher = new Zustandsspeicher();
     private Kreis previewKreis;
@@ -21,7 +22,8 @@ public class Zeichenflaeche extends JPanel {
     private Rechteck previewRechteck;
     private Polygon previewPolygon;
     private Color Hintergrundfarbe = Color.WHITE; //Weiss als Standardfarbe
-    private int Radierradius = 10;
+    private int Radierradius = 20;
+    private Point Radierpunkt;
 
     public Zeichenflaeche() {
         Linien = new ArrayList<>();//hier werden die Linien die gezeichnet werden erstgespeichert
@@ -29,6 +31,7 @@ public class Zeichenflaeche extends JPanel {
         Kreise = new ArrayList<>();
         Rechtecke = new ArrayList<>();
         Polygons = new ArrayList<>();
+        Radiererpunkte = new ArrayList<Point>();
     }
     public void zeichneLinie(Linie linie){ //nur für gerade Linie
         zustandsspeicher.fuehreaus(
@@ -170,7 +173,14 @@ public class Zeichenflaeche extends JPanel {
             grafik.setStroke(new BasicStroke(previewEllipse.getDicke()));
             grafik.setColor(previewEllipse.getFarbe());
             grafik.drawOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
+
+
         }
+        grafik.setColor(getHintergrundfarbe());
+        int radius = getRadierradius();
+        int durchmesser = 2*radius;
+        for(Point radierpunkt : Radiererpunkte)
+            grafik.fillOval(radierpunkt.x - radius,radierpunkt.y -radius,durchmesser,durchmesser);
     }
     public void reset(){
         Linien.clear();;
@@ -178,6 +188,7 @@ public class Zeichenflaeche extends JPanel {
         Kreise.clear();
         Rechtecke.clear();;
         Polygons.clear();
+        Radiererpunkte.clear();
         setHintergrundfarbe(getHintergrundfarbe());
         repaint();
     }
@@ -218,20 +229,42 @@ public class Zeichenflaeche extends JPanel {
             grafik.setColor(polygon.getFarbe());
             grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
         }
+        grafik.setColor(getHintergrundfarbe());
+        int radius = getRadierradius();
+        int durchmesser = 2*radius;
+        for(Point radierpunkt : Radiererpunkte)
+            grafik.fillOval(radierpunkt.x - radius,radierpunkt.y -radius,durchmesser,durchmesser);
         grafik.dispose();
 
 
         return Bild;
     }
     public void radiere(int xKoordinate,int yKoordinate){
-        Graphics2D grafik = Bild.createGraphics(); //Damit kann ich auf geladenem Bild malen
-        int radius = getRadierradius();
-        int durchmesser = 2*radius;
-        Color Radierfarbe = getHintergrundfarbe();
-        grafik.setColor(Radierfarbe);
-        grafik.setComposite(AlphaComposite.SrcOver); // Damit kann ich über die geladenen Pixel malen
-        grafik.fillOval(xKoordinate-radius,yKoordinate-radius,durchmesser,durchmesser); //ganzer Kreis wird in der Hintergrundfarbe gezeichnet x-r und y-r ,da der mittelpunkt sonst nicht bei x und y wären
-        repaint();
+         Point Radierpunkt = new Point(xKoordinate,yKoordinate);
+        zustandsspeicher.fuehreaus(
+                () ->{
+                    Radiererpunkte.add(Radierpunkt);
+                    repaint();
+                },
+                () -> {
+                    Radiererpunkte.remove(Radierpunkt);
+                    repaint();
+                }
+
+        );
+    }
+    public void radiere(List<Point> Punkte){
+        zustandsspeicher.fuehreaus(
+                () ->{
+                    this.Radiererpunkte.addAll(Punkte);
+                    repaint();
+                },
+                () -> {
+                    this.Radiererpunkte.removeAll(Punkte);
+                    repaint();
+                }
+
+        );
     }
 
     public void setBild(BufferedImage bild) {

@@ -18,7 +18,7 @@ public class GUI extends JFrame {
     private JPanel leiste;
     private JToolBar symbolleiste;
     private JMenuBar menueleiste;
-    private JMenu datei;
+    private JMenu datei,stift,formen,radierer,text,hintergrund;
     private JMenuItem Speichernmenueleiste, Laden, NeueDatei;
     private boolean mausgedrueckt = false;
     private String Modus = "Frei";
@@ -31,9 +31,11 @@ public class GUI extends JFrame {
     private Color hellblau = new Color(200,235,245);
     private Color textfarbe = new Color(40,40,40);
     private ArrayList<Linie> aktuelleLinie = new ArrayList<>();
+    private ArrayList<Point> aktuelleRadierung = new ArrayList<>();
     private boolean Aenderungengespeichert = true, neuesFenstererstellen = false;
     private JPanel Aenderungenungespeichertfenster,neueDateierstellenfenster;
     private JDialog dialog;
+    private ButtonGroup Auswahlmodi,Radierradius;
 
     public GUI() {
         super("Graphic Editor");
@@ -94,12 +96,88 @@ public class GUI extends JFrame {
         menueleiste.setOpaque(true);
         menueleiste.setBackground(hellblau);
 
+        stift = new JMenu("Stift");
+        JMenuItem farbeStift = new JMenuItem("Farbe");
+        farbeStift.addActionListener(e -> {
+            Color farbe = JColorChooser.showDialog(this, "Stiftfarbe wählen",aktuelleFarbe); //Damit kann die Frabe ausgewähltwerden
+            if(farbe != null) aktuelleFarbe = farbe;
+        });
+        JMenuItem dickeStift = new JMenuItem("Dicke");
+        dickeStift.addActionListener(e-> {
+            String Eingabe = JOptionPane.showInputDialog(       //Erstellen Eingabefeld um Dicke einzustellen
+                    this,"Dicke eingeben: ",
+                    aktuelleDicke
+            );
+            if(Eingabe == null) return;
+            try {
+                float dicke = Float.parseFloat(Eingabe);
+                if(dicke > 0) aktuelleDicke = dicke;
+            }
+            catch(NumberFormatException exception) {}
+        });
+
+        formen = new JMenu("Formen");
+        JRadioButtonMenuItem freiesZeichnen = new JRadioButtonMenuItem("Freies Zeichnen", true); //Startzustand
+        JRadioButtonMenuItem geradesZeichnen = new JRadioButtonMenuItem("Gerades Zeichnen");
+        JRadioButtonMenuItem Kreis = new JRadioButtonMenuItem("Kreis");
+        JRadioButtonMenuItem Ellipse = new JRadioButtonMenuItem("Ellipse");
+        JRadioButtonMenuItem Rechteck = new JRadioButtonMenuItem("Rechteck");
+        JRadioButtonMenuItem Polygon = new JRadioButtonMenuItem("Polygon");
+
+        freiesZeichnen.addActionListener(e-> Modus = "Frei");
+        geradesZeichnen.addActionListener(e-> Modus = "Gerade");
+        Kreis.addActionListener(e-> Modus = "Kreis");
+        Ellipse.addActionListener(e-> Modus = "Ellipse");
+        Rechteck.addActionListener(e-> Modus = "Rechteck");
+        Polygon.addActionListener(e-> Modus = "Polygon");
+
+        Auswahlmodi = new ButtonGroup();
+        Auswahlmodi.add(freiesZeichnen);
+        Auswahlmodi.add(geradesZeichnen);
+        Auswahlmodi.add(Kreis);
+        Auswahlmodi.add(Ellipse);
+        Auswahlmodi.add(Rechteck);
+        Auswahlmodi.add(Polygon);
+
+        radierer = new JMenu("Radierer");
+        JRadioButtonMenuItem kleinerRadierer = new JRadioButtonMenuItem("Kleiner Radierer");
+        JRadioButtonMenuItem mittlererRadierer = new JRadioButtonMenuItem("Mittlerer Radierer");
+        JRadioButtonMenuItem grosserRadierer = new JRadioButtonMenuItem("Großer Radierer");
+
+        kleinerRadierer.addActionListener(e ->{Modus = "Radiere";zeichenflaeche.setRadierradius(10);});
+        grosserRadierer.addActionListener(e ->{Modus = "Radiere";zeichenflaeche.setRadierradius(30);});
+        mittlererRadierer.addActionListener(e ->{Modus = "Radiere";zeichenflaeche.setRadierradius(20);});
+
+        Auswahlmodi.add(kleinerRadierer);       //Eine Buttongroup für alle Sachen, damit kann nur ein Eintrag ausgewählt werden
+        Auswahlmodi.add(mittlererRadierer);
+        Auswahlmodi.add(grosserRadierer);
+
+        radierer.add(kleinerRadierer);
+        radierer.add(mittlererRadierer);
+        radierer.add(grosserRadierer);
+
+
+
+        formen.add(freiesZeichnen);
+        formen.add(geradesZeichnen);
+        formen.add(Kreis);
+        formen.add(Ellipse);
+        formen.add(Rechteck);
+        formen.add(Polygon);
+
+
         datei.add(Speichernmenueleiste);
         datei.add(Laden);
         datei.add(NeueDatei);
 
+        stift.add(farbeStift);
+        stift.add(dickeStift);
+
         menueleiste.setLayout(new FlowLayout(FlowLayout.LEFT));
         menueleiste.add(datei);
+        menueleiste.add(stift);
+        menueleiste.add(formen);
+        menueleiste.add(radierer);
 
         leiste.add(menueleiste);
 
@@ -279,6 +357,12 @@ public class GUI extends JFrame {
                 StartyKoordinate = e.getY();
                 Aenderungengespeichert = false;
             }
+            if (Modus.equals("Radiere")) {
+                aktuelleRadierung.clear(); //Liste der ganz vielen Radierpunkten wird leer gemacht
+                aktuelleRadierung.add(new Point(e.getX(),e.getY()));
+                zeichenflaeche.Radiererpunkte.add(new Point(e.getX(),e.getY()));
+                Aenderungengespeichert = false;
+            }
 
             if (Modus.equals("Gerade")) {
 
@@ -364,6 +448,14 @@ public class GUI extends JFrame {
                 rechteck.setFarbe(aktuelleFarbe);
                 rechteck.setDicke(aktuelleDicke);
                 zeichenflaeche.zeichneRechteck(rechteck);
+                if(Modus.equals("Radiere")){
+                    if(!aktuelleRadierung.isEmpty()){
+                        zeichenflaeche.Radiererpunkte.removeAll(aktuelleRadierung); //preview wird wieder entfernt
+                        zeichenflaeche.radiere(aktuelleRadierung);
+                        aktuelleRadierung.clear();
+                        Aenderungengespeichert = false;
+                    }
+                }
             }
         }
 
@@ -395,7 +487,10 @@ public class GUI extends JFrame {
                 StartyKoordinate = EndYKoordinate;
             }
             if (Modus.equals("Radiere")) {
-                zeichenflaeche.radiere(e.getX(),e.getY());
+                Point aktuellerPunkt = new Point(e.getX(),e.getY());
+                aktuelleRadierung.add(aktuellerPunkt); //Alle punkte über die radierer gezogen wird werden zum Aktuelle Liste hinzugefügt
+                zeichenflaeche.Radiererpunkte.add(aktuellerPunkt); //für Preview
+                repaint();
                 Aenderungengespeichert = false;
             }
             //vorschau
