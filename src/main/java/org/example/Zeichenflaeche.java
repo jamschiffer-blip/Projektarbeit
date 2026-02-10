@@ -24,6 +24,8 @@ public class Zeichenflaeche extends JPanel {
     private Color Hintergrundfarbe = Color.WHITE; //Weiss als Standardfarbe
     private int Radierradius = 20;
     private Point Radierpunkt;
+    private boolean fuellFarbebenutzen;
+    private Color aktuelleFuellfarbe;
 
     public Zeichenflaeche() {
         Linien = new ArrayList<>();//hier werden die Linien die gezeichnet werden erstgespeichert
@@ -133,21 +135,37 @@ public class Zeichenflaeche extends JPanel {
             grafik.setStroke(new BasicStroke(ellipse.getDicke()));
             grafik.setColor(ellipse.getFarbe());
             grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+            }
         }
         for(Kreis kreis : Kreise) {
             grafik.setStroke(new BasicStroke(kreis.getDicke()));
             grafik.setColor(kreis.getFarbe());
             grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() ); //hoehe und breite sind bei kreis gleich
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser());
+            }
         }
         for(Rechteck rechteck : Rechtecke) {
             grafik.setStroke(new BasicStroke(rechteck.getDicke()));
             grafik.setColor(rechteck.getFarbe());
             grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+            }
         }
         for(Polygon polygon : Polygons) {
             grafik.setStroke(new BasicStroke(polygon.getDicke()));
             grafik.setColor(polygon.getFarbe());
             grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            }
         }
         if(previewLinie!=null){
             grafik.setStroke(new BasicStroke(previewLinie.getDicke())); //als Methode schreiben evtl
@@ -158,22 +176,37 @@ public class Zeichenflaeche extends JPanel {
             grafik.setStroke(new BasicStroke(previewKreis.getDicke()));
             grafik.setColor(previewKreis.getFarbe());
             grafik.drawOval(previewKreis.getxKoordinate(),previewKreis.getyKoordinate(),previewKreis.getDurchmesser(), previewKreis.getDurchmesser() );
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillOval(previewKreis.getxKoordinate(),previewKreis.getyKoordinate(),previewKreis.getDurchmesser(), previewKreis.getDurchmesser());
+            }
         }
         if(previewPolygon != null){
             grafik.setStroke(new BasicStroke(previewPolygon.getDicke()));
             grafik.setColor(previewPolygon.getFarbe());
             grafik.drawPolygon(previewPolygon.getxKoordinaten(),previewPolygon.getyKoordinaten(), previewPolygon.getAnzahlPunkte());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillPolygon(previewPolygon.getxKoordinaten(),previewPolygon.getyKoordinaten(), previewPolygon.getAnzahlPunkte());
+            }
         }
         if(previewRechteck != null){
             grafik.setStroke(new BasicStroke(previewRechteck.getDicke()));
             grafik.setColor(previewRechteck.getFarbe());
             grafik.drawRect(previewRechteck.getxKoordinate(),previewRechteck.getyKoordinate(),previewRechteck.getBreite(),previewRechteck.getHoehe());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillRect(previewRechteck.getxKoordinate(),previewRechteck.getyKoordinate(),previewRechteck.getBreite(),previewRechteck.getHoehe());
+            }
         }
         if(previewEllipse != null){
             grafik.setStroke(new BasicStroke(previewEllipse.getDicke()));
             grafik.setColor(previewEllipse.getFarbe());
             grafik.drawOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
-
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
+            }
 
         }
         grafik.setColor(getHintergrundfarbe());
@@ -213,21 +246,37 @@ public class Zeichenflaeche extends JPanel {
             grafik.setStroke(new BasicStroke(ellipse.getDicke()));
             grafik.setColor(ellipse.getFarbe());
             grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+            }
         }
         for(Kreis kreis : Kreise) {
             grafik.setStroke(new BasicStroke(kreis.getDicke()));
             grafik.setColor(kreis.getFarbe());
-            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() ); //hoehe und breite sind bei kreis gleich
+            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() );//hoehe und breite sind bei kreis gleich
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser());
+            }
         }
         for(Rechteck rechteck : Rechtecke) {
             grafik.setStroke(new BasicStroke(rechteck.getDicke()));
             grafik.setColor(rechteck.getFarbe());
             grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+            }
         }
         for(Polygon polygon : Polygons) {
             grafik.setStroke(new BasicStroke(polygon.getDicke()));
             grafik.setColor(polygon.getFarbe());
             grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            if(isFuellFarbebenutzen()){
+                grafik.setColor(getAktuelleFuellfarbe());
+                grafik.fillPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            }
         }
         grafik.setColor(getHintergrundfarbe());
         int radius = getRadierradius();
@@ -331,5 +380,21 @@ public class Zeichenflaeche extends JPanel {
 
     public void setRadierradius(int radierradius) {
         Radierradius = radierradius;
+    }
+
+    public boolean isFuellFarbebenutzen() {
+        return fuellFarbebenutzen;
+    }
+
+    public void setFuellFarbebenutzen(boolean fuellFarbebenutzen) {
+        this.fuellFarbebenutzen = fuellFarbebenutzen;
+    }
+
+    public Color getAktuelleFuellfarbe() {
+        return aktuelleFuellfarbe;
+    }
+
+    public void setAktuelleFuellfarbe(Color aktuelleFuellfarbe) {
+        this.aktuelleFuellfarbe = aktuelleFuellfarbe;
     }
 }

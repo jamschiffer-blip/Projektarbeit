@@ -18,24 +18,26 @@ public class GUI extends JFrame {
     private JPanel leiste;
     private JToolBar symbolleiste;
     private JMenuBar menueleiste;
-    private JMenu datei,stift,formen,radierer,text,hintergrund;
+    private JMenu datei, stift, formen, radierer, text, hintergrund, Bedienungshilfe, ausfuellen;
     private JMenuItem Speichernmenueleiste, Laden, NeueDatei;
     private boolean mausgedrueckt = false;
     private String Modus = "Frei";
     public Zeichenflaeche zeichenflaeche;
-    private Color aktuelleFarbe = Color.BLACK;
+    private Color aktuelleFarbe = Color.BLACK, aktuelleHintergrundfarbe = Color.WHITE;
+    public Color aktuelleFuellfarbe = Color.WHITE;  //Public Damit Zeichenflaeche auch draufzugreifen kann
     private float aktuelleDicke = 2.0f;
     private final int Zeichenflaeche_HOEHE = 2000;
     private final int Zeichenflaeche_BREITE = 1500;
     private File aktuelleDatei;
-    private Color hellblau = new Color(200,235,245);
-    private Color textfarbe = new Color(40,40,40);
+    private Color hellblau = new Color(200, 235, 245);
+    private Color textfarbe = new Color(40, 40, 40);
     private ArrayList<Linie> aktuelleLinie = new ArrayList<>();
     private ArrayList<Point> aktuelleRadierung = new ArrayList<>();
     private boolean Aenderungengespeichert = true, neuesFenstererstellen = false;
-    private JPanel Aenderungenungespeichertfenster,neueDateierstellenfenster;
+    public boolean fuelleimerbenutzen = false; //Public Damit Zeichenflaeche auch draufzugreifen kann
+    private JPanel Aenderungenungespeichertfenster, neueDateierstellenfenster;
     private JDialog dialog;
-    private ButtonGroup Auswahlmodi,Radierradius;
+    private ButtonGroup Auswahlmodi, Radierradius;
 
     public GUI() {
         super("Graphic Editor");
@@ -65,8 +67,10 @@ public class GUI extends JFrame {
         Speichern.setActionCommand("speichern");
         Undo.addActionListener(e -> zeichenflaeche.undo());
         Redo.addActionListener(e -> zeichenflaeche.redo());
-        Speichern.addActionListener(e -> { zwischenspeichern();
-        Aenderungengespeichert = true;});
+        Speichern.addActionListener(e -> {
+            zwischenspeichern();
+            Aenderungengespeichert = true;
+        });
 
         symbolleiste.add(Undo);
         symbolleiste.add(Redo);
@@ -84,8 +88,10 @@ public class GUI extends JFrame {
         menueleiste = new JMenuBar();
         datei = new JMenu("Datei");
         Speichernmenueleiste = new JMenuItem("Speichern Unter");
-        Speichernmenueleiste.addActionListener(e ->{ SpeichernUnter();
-            Aenderungengespeichert = true;});
+        Speichernmenueleiste.addActionListener(e -> {
+            SpeichernUnter();
+            Aenderungengespeichert = true;
+        });
         Laden = new JMenuItem("Laden");
         Laden.addActionListener(e -> ladeBild());
         NeueDatei = new JMenuItem("Neue Datei");
@@ -99,21 +105,21 @@ public class GUI extends JFrame {
         stift = new JMenu("Stift");
         JMenuItem farbeStift = new JMenuItem("Farbe");
         farbeStift.addActionListener(e -> {
-            Color farbe = JColorChooser.showDialog(this, "Stiftfarbe wählen",aktuelleFarbe); //Damit kann die Frabe ausgewähltwerden
-            if(farbe != null) aktuelleFarbe = farbe;
+            Color farbe = JColorChooser.showDialog(this, "Stiftfarbe wählen", aktuelleFarbe); //Damit kann die Frabe ausgewähltwerden
+            if (farbe != null) aktuelleFarbe = farbe;
         });
         JMenuItem dickeStift = new JMenuItem("Dicke");
-        dickeStift.addActionListener(e-> {
+        dickeStift.addActionListener(e -> {
             String Eingabe = JOptionPane.showInputDialog(       //Erstellen Eingabefeld um Dicke einzustellen
-                    this,"Dicke eingeben: ",
+                    this, "Dicke eingeben: ",
                     aktuelleDicke
             );
-            if(Eingabe == null) return;
+            if (Eingabe == null) return;
             try {
                 float dicke = Float.parseFloat(Eingabe);
-                if(dicke > 0) aktuelleDicke = dicke;
+                if (dicke > 0) aktuelleDicke = dicke;
+            } catch (NumberFormatException exception) {
             }
-            catch(NumberFormatException exception) {}
         });
 
         formen = new JMenu("Formen");
@@ -124,12 +130,12 @@ public class GUI extends JFrame {
         JRadioButtonMenuItem Rechteck = new JRadioButtonMenuItem("Rechteck");
         JRadioButtonMenuItem Polygon = new JRadioButtonMenuItem("Polygon");
 
-        freiesZeichnen.addActionListener(e-> Modus = "Frei");
-        geradesZeichnen.addActionListener(e-> Modus = "Gerade");
-        Kreis.addActionListener(e-> Modus = "Kreis");
-        Ellipse.addActionListener(e-> Modus = "Ellipse");
-        Rechteck.addActionListener(e-> Modus = "Rechteck");
-        Polygon.addActionListener(e-> Modus = "Polygon");
+        freiesZeichnen.addActionListener(e -> Modus = "Frei");
+        geradesZeichnen.addActionListener(e -> Modus = "Gerade");
+        Kreis.addActionListener(e -> Modus = "Kreis");
+        Ellipse.addActionListener(e -> Modus = "Ellipse");
+        Rechteck.addActionListener(e -> Modus = "Rechteck");
+        Polygon.addActionListener(e -> Modus = "Polygon");
 
         Auswahlmodi = new ButtonGroup();
         Auswahlmodi.add(freiesZeichnen);
@@ -144,9 +150,44 @@ public class GUI extends JFrame {
         JRadioButtonMenuItem mittlererRadierer = new JRadioButtonMenuItem("Mittlerer Radierer");
         JRadioButtonMenuItem grosserRadierer = new JRadioButtonMenuItem("Großer Radierer");
 
-        kleinerRadierer.addActionListener(e ->{Modus = "Radiere";zeichenflaeche.setRadierradius(10);});
-        grosserRadierer.addActionListener(e ->{Modus = "Radiere";zeichenflaeche.setRadierradius(30);});
-        mittlererRadierer.addActionListener(e ->{Modus = "Radiere";zeichenflaeche.setRadierradius(20);});
+        kleinerRadierer.addActionListener(e -> {
+            Modus = "Radiere";
+            zeichenflaeche.setRadierradius(10);
+        });
+        grosserRadierer.addActionListener(e -> {
+            Modus = "Radiere";
+            zeichenflaeche.setRadierradius(30);
+        });
+        mittlererRadierer.addActionListener(e -> {
+            Modus = "Radiere";
+            zeichenflaeche.setRadierradius(20);
+        });
+
+        hintergrund = new JMenu("Hintergrund");
+        JMenuItem farbeHintergrund = new JMenuItem("Farbe");
+        farbeHintergrund.addActionListener(e -> {
+            Color farbe = JColorChooser.showDialog(this, "Hintergrundfarbe wählen", aktuelleHintergrundfarbe); //Damit kann die Frabe ausgewähltwerden
+            if (farbe != null) {
+                aktuelleHintergrundfarbe = farbe;
+                zeichenflaeche.setHintergrundfarbe(aktuelleHintergrundfarbe);
+                zeichenflaeche.repaint();
+            }
+        });
+
+        ausfuellen = new JMenu("Fülleimer");
+        JCheckBoxMenuItem ausfuellencheckbox = new JCheckBoxMenuItem("Ausfüllen?");
+        ausfuellencheckbox.addActionListener(e -> {
+            zeichenflaeche.setFuellFarbebenutzen(true);
+        });
+        JMenuItem farbeFuellEimer = new JMenuItem("Farbe");
+        farbeFuellEimer.addActionListener(e -> {
+            Color farbe = JColorChooser.showDialog(this, "Farbe zum Ausfüllen wählen", aktuelleFuellfarbe); //Damit kann die Frabe ausgewähltwerden
+            if (farbe != null) {
+                aktuelleFuellfarbe = farbe;
+                zeichenflaeche.setAktuelleFuellfarbe(aktuelleFuellfarbe);
+            }
+        });
+
 
         Auswahlmodi.add(kleinerRadierer);       //Eine Buttongroup für alle Sachen, damit kann nur ein Eintrag ausgewählt werden
         Auswahlmodi.add(mittlererRadierer);
@@ -157,7 +198,6 @@ public class GUI extends JFrame {
         radierer.add(grosserRadierer);
 
 
-
         formen.add(freiesZeichnen);
         formen.add(geradesZeichnen);
         formen.add(Kreis);
@@ -165,6 +205,10 @@ public class GUI extends JFrame {
         formen.add(Rechteck);
         formen.add(Polygon);
 
+        hintergrund.add(farbeHintergrund);
+
+        ausfuellen.add(ausfuellencheckbox);
+        ausfuellen.add(farbeFuellEimer);
 
         datei.add(Speichernmenueleiste);
         datei.add(Laden);
@@ -178,6 +222,8 @@ public class GUI extends JFrame {
         menueleiste.add(stift);
         menueleiste.add(formen);
         menueleiste.add(radierer);
+        menueleiste.add(hintergrund);
+        menueleiste.add(ausfuellen);
 
         leiste.add(menueleiste);
 
@@ -202,16 +248,16 @@ public class GUI extends JFrame {
             neuesFenstererstellen = false;
             dialog.dispose();
         });
-        neueDateierstellenfenster.setLayout(new GridLayout(2,1,50,50));
+        neueDateierstellenfenster.setLayout(new GridLayout(2, 1, 50, 50));
         text.add(neueDatei);
-        buttons.setLayout(new GridLayout(1,2,50,50));
+        buttons.setLayout(new GridLayout(1, 2, 50, 50));
         buttons.add(erstellen);
         buttons.add(nichterstellen);
         neueDateierstellenfenster.add(text);
         neueDateierstellenfenster.add(buttons);
 
         //Erstellen eines Fensters falls Änderungen ungespeichert sind
-         Aenderungenungespeichertfenster = new JPanel();
+        Aenderungenungespeichertfenster = new JPanel();
         JPanel textfenster2 = new JPanel();
         JPanel buttonsfenster2 = new JPanel();
         JLabel ungespeicherttext = new JLabel("Die Änderungen wurden nicht gespeichert");
@@ -219,20 +265,24 @@ public class GUI extends JFrame {
         JButton verwerfen = new JButton("Aenderungen verwerfen");
         speichern.addActionListener(e -> {
             Aenderungengespeichert = true;
-            if(aktuelleDatei==null){
+            if (aktuelleDatei == null) {
                 SpeichernUnter();
-            }
-            else zwischenspeichern();
+            } else zwischenspeichern();
             zeichenflaeche.reset();
+            aktuelleDatei = null;
+            Aenderungengespeichert = true; //Da noch keine Änderungen es in neue Datei gab
             dialog.dispose();
         });
         verwerfen.addActionListener(e -> {
             zeichenflaeche.reset();
+            zeichenflaeche.reset();
+            aktuelleDatei = null;
+            Aenderungengespeichert = true; //Da noch keine Änderungen es in neue Datei gab
             dialog.dispose();
         });
-        Aenderungenungespeichertfenster.setLayout(new GridLayout(2,1,50,50));
+        Aenderungenungespeichertfenster.setLayout(new GridLayout(2, 1, 50, 50));
         textfenster2.add(ungespeicherttext);
-        buttonsfenster2.setLayout(new GridLayout(1,2,50,50));
+        buttonsfenster2.setLayout(new GridLayout(1, 2, 50, 50));
         buttonsfenster2.add(speichern);
         buttonsfenster2.add(verwerfen);
         Aenderungenungespeichertfenster.add(textfenster2);
@@ -263,9 +313,9 @@ public class GUI extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             //ABfrage ob wirklich neue Datei erstellt werden soll
-            if(e.getActionCommand().equals("neue datei")){
+            if (e.getActionCommand().equals("neue datei")) {
 
-                if(Aenderungengespeichert) {
+                if (Aenderungengespeichert) {
                     JOptionPane PopupneuesFenstererstellen = new JOptionPane(
 
                             neueDateierstellenfenster,
@@ -274,13 +324,17 @@ public class GUI extends JFrame {
                             null,
                             new Object[]{} //wichtig da sonst OK Button gibt
                     );
-                    dialog = PopupneuesFenstererstellen.createDialog(GUI.this,"Neues Fenster erstellen?");
+                    dialog = PopupneuesFenstererstellen.createDialog(GUI.this, "Neues Fenster erstellen?");
                     dialog.setVisible(true);
-                    if(neuesFenstererstellen) zeichenflaeche.reset();
-                } //Soll wirklich neue datei angelegt werden
+                    if (neuesFenstererstellen) {
+                        zeichenflaeche.reset();
+                        aktuelleDatei = null;
+                        Aenderungengespeichert = true; //Da noch keine Änderungen es in neue Datei gab
+                    }
+                }
 
 
-                if( !Aenderungengespeichert) { //Wenn es ungespeicherte Änderungen gab kommt popuüp
+                if (!Aenderungengespeichert) { //Wenn es ungespeicherte Änderungen gab kommt popuüp
                     JOptionPane PopupneuesFenstererstellen = new JOptionPane(
 
                             neueDateierstellenfenster,
@@ -304,8 +358,10 @@ public class GUI extends JFrame {
                         dialog.setVisible(true);
                     }
                 }
+
+            }
         }
-        }
+
         @Override
         public void mouseClicked(MouseEvent e) {
             double distanz;
@@ -322,10 +378,10 @@ public class GUI extends JFrame {
                     counterPolygon++;
                 }
                 //Hier Preview
-                if(counterPolygon>=2){
-                    int[] xKoordinatenPreview = Arrays.copyOf(xKoordinatenPolygon,counterPolygon);
-                    int[] yKoordinatenPreview = Arrays.copyOf(yKoordinatenPolygon,counterPolygon);
-                    Polygon previewPolygon = new Polygon(xKoordinatenPreview,yKoordinatenPreview);
+                if (counterPolygon >= 2) {
+                    int[] xKoordinatenPreview = Arrays.copyOf(xKoordinatenPolygon, counterPolygon);
+                    int[] yKoordinatenPreview = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
+                    Polygon previewPolygon = new Polygon(xKoordinatenPreview, yKoordinatenPreview);
                     previewPolygon.setDicke(aktuelleDicke);
                     previewPolygon.setFarbe(aktuelleFarbe);
                     zeichenflaeche.setPreviewPolygon(previewPolygon);
@@ -359,8 +415,8 @@ public class GUI extends JFrame {
             }
             if (Modus.equals("Radiere")) {
                 aktuelleRadierung.clear(); //Liste der ganz vielen Radierpunkten wird leer gemacht
-                aktuelleRadierung.add(new Point(e.getX(),e.getY()));
-                zeichenflaeche.Radiererpunkte.add(new Point(e.getX(),e.getY()));
+                aktuelleRadierung.add(new Point(e.getX(), e.getY())); //Liste ganzvieler Radierpunkte wird erstmakls gefüllt
+                zeichenflaeche.Radiererpunkte.add(new Point(e.getX(), e.getY())); //Preview wird sofort sichtbar
                 Aenderungengespeichert = false;
             }
 
@@ -397,8 +453,8 @@ public class GUI extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if(Modus.equals("Frei")){
-                if(!aktuelleLinie.isEmpty()){
+            if (Modus.equals("Frei")) {
+                if (!aktuelleLinie.isEmpty()) {
                     zeichenflaeche.Linien.removeAll(aktuelleLinie); //damit werden alle Linien die als Preview dienen gelöscht um Un und redo möglichzumache
                     zeichenflaeche.zeichneLinie(new ArrayList<>(aktuelleLinie));// es wird die methode zeichnelinie für eine edngültige linie aufgerufen
                     Aenderungengespeichert = false;
@@ -448,15 +504,17 @@ public class GUI extends JFrame {
                 rechteck.setFarbe(aktuelleFarbe);
                 rechteck.setDicke(aktuelleDicke);
                 zeichenflaeche.zeichneRechteck(rechteck);
-                if(Modus.equals("Radiere")){
-                    if(!aktuelleRadierung.isEmpty()){
-                        zeichenflaeche.Radiererpunkte.removeAll(aktuelleRadierung); //preview wird wieder entfernt
-                        zeichenflaeche.radiere(aktuelleRadierung);
-                        aktuelleRadierung.clear();
-                        Aenderungengespeichert = false;
-                    }
+            }
+            if (Modus.equals("Radiere")) {
+                if (!aktuelleRadierung.isEmpty()) {
+                    zeichenflaeche.Radiererpunkte.removeAll(aktuelleRadierung); //preview wird wieder entfernt
+                    //Kopie nötig, da aktuelleRadierung bei Undo und Redo geleert wird
+                    zeichenflaeche.radiere(new ArrayList<>(aktuelleRadierung)); //gesamter radiervorgang wird endgültig beendet, es wird der radierstrich hinzugefügt
+                    aktuelleRadierung.clear();
+                    Aenderungengespeichert = false;
                 }
             }
+
         }
 
         @Override
@@ -487,14 +545,14 @@ public class GUI extends JFrame {
                 StartyKoordinate = EndYKoordinate;
             }
             if (Modus.equals("Radiere")) {
-                Point aktuellerPunkt = new Point(e.getX(),e.getY());
+                Point aktuellerPunkt = new Point(e.getX(), e.getY());
                 aktuelleRadierung.add(aktuellerPunkt); //Alle punkte über die radierer gezogen wird werden zum Aktuelle Liste hinzugefügt
                 zeichenflaeche.Radiererpunkte.add(aktuellerPunkt); //für Preview
                 repaint();
                 Aenderungengespeichert = false;
             }
             //vorschau
-            if(Modus.equals("Kreis")){
+            if (Modus.equals("Kreis")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
                 double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
@@ -508,7 +566,7 @@ public class GUI extends JFrame {
                 zeichenflaeche.setPreviewKreis(previewkreis);
 
             }
-            if(Modus.equals("Rechteck")){
+            if (Modus.equals("Rechteck")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
 
@@ -521,7 +579,7 @@ public class GUI extends JFrame {
                 previewrechteck.setDicke(aktuelleDicke);
                 zeichenflaeche.setPreviewRechteck(previewrechteck);
             }
-            if(Modus.equals("Ellipse")){
+            if (Modus.equals("Ellipse")) {
                 EndXKoordinate = e.getX();
                 EndYKoordinate = e.getY();
 
@@ -548,7 +606,7 @@ public class GUI extends JFrame {
 
         @Override
         public void windowClosing(WindowEvent e) {
-            if(!Aenderungengespeichert){
+            if (!Aenderungengespeichert) {
                 JOptionPane ungespeicherteAenderungen = new JOptionPane(
 
                         Aenderungenungespeichertfenster,
@@ -557,7 +615,7 @@ public class GUI extends JFrame {
                         null,
                         new Object[]{} //wichtig da sonst OK Button gibt
                 );
-                dialog = ungespeicherteAenderungen.createDialog(GUI.this,"Änderungen ungespeichert");
+                dialog = ungespeicherteAenderungen.createDialog(GUI.this, "Änderungen ungespeichert");
                 dialog.setVisible(true);
             }
             GUI.this.dispose(); //Hauptfenster wird geschlossen
@@ -591,7 +649,7 @@ public class GUI extends JFrame {
 
     public void SpeichernUnter() {
         JFileChooser filter = new JFileChooser();
-        filter.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)","jpg")); //es werden nur jpg dateien angezeigt
+        filter.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)", "jpg")); //es werden nur jpg dateien angezeigt
         if (filter.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn Nutzer speichern will, kann immer noch abbrechen dabei
             File datei = filter.getSelectedFile(); // die datei der der benutzer eingegeben hat
             if (!datei.getName().toLowerCase().endsWith(".jpg"))
@@ -621,7 +679,7 @@ public class GUI extends JFrame {
 
     public void ladeBild() {
         JFileChooser sucher = new JFileChooser();
-        sucher.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)","jpg")); // es werden nur jpgs angezeigt
+        sucher.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)", "jpg")); // es werden nur jpgs angezeigt
         if (sucher.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn nutzer wirklich laden will und nicht zwischen durch abbricht
             BufferedImage zuladenesBild;
             try {
@@ -636,5 +694,4 @@ public class GUI extends JFrame {
 
         }
     }
-
 }
