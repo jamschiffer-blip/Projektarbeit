@@ -49,6 +49,7 @@ public class GUI extends JFrame {
         zeichenflaeche.addMouseListener(listener);
         zeichenflaeche.addMouseMotionListener(listener);
         addWindowListener(listener);
+        addKeyListener(listener);
 
         setLayout(new BorderLayout());
 
@@ -194,7 +195,33 @@ public class GUI extends JFrame {
             JOptionPane.showMessageDialog(
                     this,
                     "Willkomen bei dem Graphic Editor!\nHier ist die Bedienungsanleitung wie man diesen bedienen kann\n" +
-                            "᛫ Menüpunkt ",
+                            "᛫Menüpunkt Datei:\n" +
+                            " Erstellt,Lädt und Speichert neue Dateien\n" +
+                            "\n" +
+                            "᛫Menüpunkt Stift:\n" +
+                            "Damit kann man Dicke und Farbe des Stiftes auswählen\n" +
+                            "\n" +
+                            "᛫Menüpunkt Formen:\n" +
+                            "Hiermit kann man jeweilige Shapes auswählen,jedoch Achtung beim Polygon! Man wählt die einzelnen Punkte mit einem Click und" +
+                            " wenn man den letzten Punkt auswählen will muss man doppelt klicken\n" +
+                            "\n" +
+                            "᛫Menüpunkt Radierer:\n" +
+                            "Hier wählt man die größe des radierers aus\n" +
+                            "\n" +
+                            "᛫Menüpunkt Hintergrund:\n " +
+                            "Hier wählt man die jeweilige Hintergrundfarbe aus\n" +
+                            "\n" +
+                            "᛫Menüpunkt Fülleimer:\n" +
+                            "Hier wählt man aus ob und wie man seine Shapes ausfüllen will\n" +
+                            "\n" +
+                            "᛫Shortcuts:\n" +
+                            "STRG + S zum Speichern\n" +
+                            "STRG + Z für UNDO\n" +
+                            "STRG + Y für REDO\n" +
+                            "STRG + N für eine neue Datei zu erstellen\n" +
+                            "STRG + O um ein Bild zu laden\n" +
+                            "STRG + Q um Anwendung zu schließen\n" +
+                            "+/- um Dicke zu verändern",
                             "Bedienungshilfe",
                     JOptionPane.INFORMATION_MESSAGE
             );
@@ -231,7 +258,7 @@ public class GUI extends JFrame {
         stift.add(farbeStift);
         stift.add(dickeStift);
 
-        menueleiste.setLayout(new FlowLayout(FlowLayout.LEFT));
+        menueleiste.setLayout(new GridLayout(1,0)); //Damit zwischen Menüpunkten gleichmäßig Platz ist
         menueleiste.add(datei);
         menueleiste.add(stift);
         menueleiste.add(formen);
@@ -311,7 +338,7 @@ public class GUI extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //um Pop up zuerstellen falls es änderungen gibt
         setFocusable(true);
         setVisible(true);
-        requestFocusInWindow();
+        zeichenflaeche.requestFocusInWindow();
     }
 
     class MeinListener implements ActionListener, MouseListener, MouseMotionListener, WindowListener, KeyListener {
@@ -423,6 +450,7 @@ public class GUI extends JFrame {
 
         @Override
         public void mousePressed(MouseEvent e) {
+            zeichenflaeche.requestFocusInWindow(); //Damit focus bei jedem Click da bleibt und shortcuts funktionieren
             if (Modus.equals("Frei")) {
                 aktuelleLinie.clear(); //Liste der ganz vielen kleinen Striche die ein grossen Strich bilden wird leer gemacht
                 StartxKoordinate = e.getX();
@@ -664,43 +692,43 @@ public class GUI extends JFrame {
 
         @Override
         public void keyTyped(KeyEvent e) {
-
+            //Dicke erhöhen mit +
+            if(e.getKeyChar() == '+') aktuelleDicke++;
+            //Dicke reduzieren mit -
+            if(e.getKeyChar() == '-') aktuelleDicke--;
         }
+
         //Tastenkombinationen
         @Override
         public void keyPressed(KeyEvent e) {
             //Speichern STRG + S
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S){ //ConrolDown bedeutet STrG gedrückt und Keyevent.VK_[Buchstabe] jeweeilige Buchstabe
+            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S) { //ConrolDown bedeutet STrG gedrückt und Keyevent.VK_[Buchstabe] jeweeilige Buchstabe
                 zwischenspeichern();
                 Aenderungengespeichert = true;
             }
             //Undo STRG + Z
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
+            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
                 zeichenflaeche.undo();
             }
             //Redo STRG + Y
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
+            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
                 zeichenflaeche.redo();
             }
             //Neue Datei STRG + N
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_N){
+            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_N) {
                 zeichenflaeche.reset();
                 aktuelleDatei = null;
             }
             //Datei laden STRG + O
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_O){
+            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_O) {
                 ladeBild();
             }
             //Beenden STRG + Q
-            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Q){
+            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Q) {
                 dispose();
             }
-            //Dicke erhöhen mit +
-            if(e.getKeyCode() == KeyEvent.VK_PLUS) aktuelleDicke++;
-            //Dicke reduzieren mit -
-            if(e.getKeyCode() == KeyEvent.VK_MINUS) aktuelleDicke--;
-        }
 
+        }
         @Override
         public void keyReleased(KeyEvent e) {
 
