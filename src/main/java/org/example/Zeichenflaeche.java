@@ -132,40 +132,44 @@ public class Zeichenflaeche extends JPanel {
         }
 
         for(Ellipse ellipse : Ellipsen) {
-            grafik.setStroke(new BasicStroke(ellipse.getDicke()));
-            grafik.setColor(ellipse.getFarbe());
-            grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
-            if(isFuellFarbebenutzen()){
+            if(ellipse.getFuellfarbe() != null){ //Zuerest füllen damit RAndlinien sichtbar werden durchübermalen
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
             }
+            grafik.setStroke(new BasicStroke(ellipse.getDicke())); //jetzt umranden
+            grafik.setColor(ellipse.getFarbe());
+            grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+
         }
         for(Kreis kreis : Kreise) {
-            grafik.setStroke(new BasicStroke(kreis.getDicke()));
-            grafik.setColor(kreis.getFarbe());
-            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() ); //hoehe und breite sind bei kreis gleich
-            if(isFuellFarbebenutzen()){
+            if(kreis.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser());
             }
+            grafik.setStroke(new BasicStroke(kreis.getDicke()));
+            grafik.setColor(kreis.getFarbe());
+            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() ); //hoehe und breite sind bei kreis gleich
+
         }
         for(Rechteck rechteck : Rechtecke) {
-            grafik.setStroke(new BasicStroke(rechteck.getDicke()));
-            grafik.setColor(rechteck.getFarbe());
-            grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
-            if(isFuellFarbebenutzen()){
+            if(rechteck.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
             }
+            grafik.setStroke(new BasicStroke(rechteck.getDicke()));
+            grafik.setColor(rechteck.getFarbe());
+            grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+
         }
         for(Polygon polygon : Polygons) {
-            grafik.setStroke(new BasicStroke(polygon.getDicke()));
-            grafik.setColor(polygon.getFarbe());
-            grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
-            if(isFuellFarbebenutzen()){
+            if(polygon.getFuellfarbe() != null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
             }
+            grafik.setStroke(new BasicStroke(polygon.getDicke()));
+            grafik.setColor(polygon.getFarbe());
+            grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+
         }
         if(previewLinie!=null){
             grafik.setStroke(new BasicStroke(previewLinie.getDicke())); //als Methode schreiben evtl
@@ -173,40 +177,44 @@ public class Zeichenflaeche extends JPanel {
             grafik.drawLine(previewLinie.getStartX(),previewLinie.getStartY(),previewLinie.getEndX(), previewLinie.getEndY());
         }
         if(previewKreis != null){
-            grafik.setStroke(new BasicStroke(previewKreis.getDicke()));
-            grafik.setColor(previewKreis.getFarbe());
-            grafik.drawOval(previewKreis.getxKoordinate(),previewKreis.getyKoordinate(),previewKreis.getDurchmesser(), previewKreis.getDurchmesser() );
-            if(isFuellFarbebenutzen()){
+            if(previewKreis.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillOval(previewKreis.getxKoordinate(),previewKreis.getyKoordinate(),previewKreis.getDurchmesser(), previewKreis.getDurchmesser());
             }
+            grafik.setStroke(new BasicStroke(previewKreis.getDicke()));
+            grafik.setColor(previewKreis.getFarbe());
+            grafik.drawOval(previewKreis.getxKoordinate(),previewKreis.getyKoordinate(),previewKreis.getDurchmesser(), previewKreis.getDurchmesser() );
+
         }
         if(previewPolygon != null){
-            grafik.setStroke(new BasicStroke(previewPolygon.getDicke()));
-            grafik.setColor(previewPolygon.getFarbe());
-            grafik.drawPolygon(previewPolygon.getxKoordinaten(),previewPolygon.getyKoordinaten(), previewPolygon.getAnzahlPunkte());
-            if(isFuellFarbebenutzen()){
+            if(previewPolygon.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillPolygon(previewPolygon.getxKoordinaten(),previewPolygon.getyKoordinaten(), previewPolygon.getAnzahlPunkte());
             }
+            grafik.setStroke(new BasicStroke(previewPolygon.getDicke()));
+            grafik.setColor(previewPolygon.getFarbe());
+            grafik.drawPolygon(previewPolygon.getxKoordinaten(),previewPolygon.getyKoordinaten(), previewPolygon.getAnzahlPunkte());
+
         }
         if(previewRechteck != null){
-            grafik.setStroke(new BasicStroke(previewRechteck.getDicke()));
-            grafik.setColor(previewRechteck.getFarbe());
-            grafik.drawRect(previewRechteck.getxKoordinate(),previewRechteck.getyKoordinate(),previewRechteck.getBreite(),previewRechteck.getHoehe());
-            if(isFuellFarbebenutzen()){
+            if(previewRechteck.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillRect(previewRechteck.getxKoordinate(),previewRechteck.getyKoordinate(),previewRechteck.getBreite(),previewRechteck.getHoehe());
             }
+            grafik.setStroke(new BasicStroke(previewRechteck.getDicke()));
+            grafik.setColor(previewRechteck.getFarbe());
+            grafik.drawRect(previewRechteck.getxKoordinate(),previewRechteck.getyKoordinate(),previewRechteck.getBreite(),previewRechteck.getHoehe());
+
         }
         if(previewEllipse != null){
-            grafik.setStroke(new BasicStroke(previewEllipse.getDicke()));
-            grafik.setColor(previewEllipse.getFarbe());
-            grafik.drawOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
-            if(isFuellFarbebenutzen()){
+            if(previewEllipse.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
             }
+            grafik.setStroke(new BasicStroke(previewEllipse.getDicke()));
+            grafik.setColor(previewEllipse.getFarbe());
+            grafik.drawOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
+
 
         }
         grafik.setColor(getHintergrundfarbe());
@@ -243,40 +251,44 @@ public class Zeichenflaeche extends JPanel {
         }
 
         for(Ellipse ellipse : Ellipsen) {
-            grafik.setStroke(new BasicStroke(ellipse.getDicke()));
-            grafik.setColor(ellipse.getFarbe());
-            grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
-            if(isFuellFarbebenutzen()){
+            if(ellipse.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
             }
+            grafik.setStroke(new BasicStroke(ellipse.getDicke()));
+            grafik.setColor(ellipse.getFarbe());
+            grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+
         }
         for(Kreis kreis : Kreise) {
-            grafik.setStroke(new BasicStroke(kreis.getDicke()));
-            grafik.setColor(kreis.getFarbe());
-            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() );//hoehe und breite sind bei kreis gleich
-            if(isFuellFarbebenutzen()){
+            if(kreis.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser());
             }
+            grafik.setStroke(new BasicStroke(kreis.getDicke()));
+            grafik.setColor(kreis.getFarbe());
+            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() );//hoehe und breite sind bei kreis gleich
+
         }
         for(Rechteck rechteck : Rechtecke) {
-            grafik.setStroke(new BasicStroke(rechteck.getDicke()));
-            grafik.setColor(rechteck.getFarbe());
-            grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
-            if(isFuellFarbebenutzen()){
+            if(rechteck.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
             }
+            grafik.setStroke(new BasicStroke(rechteck.getDicke()));
+            grafik.setColor(rechteck.getFarbe());
+            grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+
         }
         for(Polygon polygon : Polygons) {
-            grafik.setStroke(new BasicStroke(polygon.getDicke()));
-            grafik.setColor(polygon.getFarbe());
-            grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
-            if(isFuellFarbebenutzen()){
+            if(polygon.getFuellfarbe()!=null){
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
             }
+            grafik.setStroke(new BasicStroke(polygon.getDicke()));
+            grafik.setColor(polygon.getFarbe());
+            grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+
         }
         grafik.setColor(getHintergrundfarbe());
         int radius = getRadierradius();

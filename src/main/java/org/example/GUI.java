@@ -178,7 +178,8 @@ public class GUI extends JFrame {
         ausfuellen = new JMenu("Fülleimer");
         JCheckBoxMenuItem ausfuellencheckbox = new JCheckBoxMenuItem("Ausfüllen?");
         ausfuellencheckbox.addActionListener(e -> {
-            zeichenflaeche.setFuellFarbebenutzen(true);
+            boolean aktiv = ausfuellencheckbox.isSelected(); //DAmit wenn sie nicht aktiv ist Fuellfarbebenutzen wieder auf false gesetzt wird nach nutzen
+            zeichenflaeche.setFuellFarbebenutzen(aktiv);
         });
         JMenuItem farbeFuellEimer = new JMenuItem("Farbe");
         farbeFuellEimer.addActionListener(e -> {
@@ -442,6 +443,7 @@ public class GUI extends JFrame {
                     Polygon polygon = new Polygon(xKoordinaten, yKoordinaten);
                     polygon.setFarbe(aktuelleFarbe);
                     polygon.setDicke(aktuelleDicke);
+                    if(zeichenflaeche.isFuellFarbebenutzen()) polygon.setFuellfarbe(aktuelleFuellfarbe);
                     zeichenflaeche.zeichnePolygon(polygon);//nur das benutzte Array wird verwendetet
                     counterPolygon = 0; //für nächstes Polygon zurücksetzen
                 }
@@ -521,6 +523,7 @@ public class GUI extends JFrame {
                 Ellipse ellipse = new Ellipse(xKoordinate, yKoordinate, breite, hoehe);
                 ellipse.setFarbe(aktuelleFarbe);
                 ellipse.setDicke(aktuelleDicke);
+                if(zeichenflaeche.isFuellFarbebenutzen()) ellipse.setFuellfarbe(aktuelleFuellfarbe);
                 zeichenflaeche.zeichneEllipse(ellipse);
             }
             if (Modus.equals("Kreis")) {
@@ -536,6 +539,7 @@ public class GUI extends JFrame {
                 Kreis kreis = new Kreis(radius * 2, xKoordinate, yKoordinate);
                 kreis.setFarbe(aktuelleFarbe);
                 kreis.setDicke(aktuelleDicke);
+                if(zeichenflaeche.isFuellFarbebenutzen()) kreis.setFuellfarbe(aktuelleFuellfarbe);
                 zeichenflaeche.zeichneKreis(kreis);
             }
             if (Modus.equals("Rechteck")) {
@@ -551,6 +555,8 @@ public class GUI extends JFrame {
                 Rechteck rechteck = new Rechteck(xKoordinate, yKoordinate, breite, hoehe);
                 rechteck.setFarbe(aktuelleFarbe);
                 rechteck.setDicke(aktuelleDicke);
+                if(zeichenflaeche.isFuellFarbebenutzen()) rechteck.setFuellfarbe(aktuelleFuellfarbe);
+
                 zeichenflaeche.zeichneRechteck(rechteck);
             }
             if (Modus.equals("Radiere")) {

@@ -3,6 +3,7 @@ package org.example;
 import java.awt.*;
 
 public class Rechteck {
+    private Color fuellfarbe = null;
     private int xKoordinate,yKoordinate,Breite,Hoehe;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
@@ -51,5 +52,13 @@ public class Rechteck {
 
     public void setDicke(float dicke) {
         this.dicke = dicke;
+    }
+
+    public Color getFuellfarbe() {
+        return fuellfarbe;
+    }
+
+    public void setFuellfarbe(Color fuellfarbe) {
+        this.fuellfarbe = fuellfarbe;
     }
 }

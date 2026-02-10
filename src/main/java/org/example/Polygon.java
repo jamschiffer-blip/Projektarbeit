@@ -3,6 +3,7 @@ package org.example;
 import java.awt.*;
 
 public class Polygon {
+    private Color fuellfarbe = null;
     private int[] xKoordinaten,yKoordinaten;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
@@ -44,6 +45,14 @@ public class Polygon {
 
     public void setDicke(float dicke) {
         this.dicke = dicke;
+    }
+
+    public Color getFuellfarbe() {
+        return fuellfarbe;
+    }
+
+    public void setFuellfarbe(Color fuellfarbe) {
+        this.fuellfarbe = fuellfarbe;
     }
 }
 

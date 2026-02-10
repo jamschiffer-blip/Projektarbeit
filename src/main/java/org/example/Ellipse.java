@@ -3,7 +3,7 @@ package org.example;
 import java.awt.*;
 
 public class Ellipse {
-
+    private Color fuellfarbe = null;
     private int xKoordinate,yKoordinate,breite, hoehe;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
@@ -52,6 +52,14 @@ public class Ellipse {
 
     public void setDicke(float dicke) {
         this.dicke = dicke;
+    }
+
+    public Color getFuellfarbe() {
+        return fuellfarbe;
+    }
+
+    public void setFuellfarbe(Color fuellfarbe) {
+        this.fuellfarbe = fuellfarbe;
     }
 }
 
