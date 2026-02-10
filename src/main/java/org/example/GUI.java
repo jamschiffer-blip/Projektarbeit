@@ -221,7 +221,8 @@ public class GUI extends JFrame {
                             "STRG + N für eine neue Datei zu erstellen\n" +
                             "STRG + O um ein Bild zu laden\n" +
                             "STRG + Q um Anwendung zu schließen\n" +
-                            "+/- um Dicke zu verändern",
+                            "+/- um Dicke zu verändern\n" +
+                            "ACHTUNG! Tastenkombinationen funktionieren nur wenn man nicht gerdae auf die Menüleiste drückt!",
                             "Bedienungshilfe",
                     JOptionPane.INFORMATION_MESSAGE
             );
@@ -336,7 +337,10 @@ public class GUI extends JFrame {
         pack();
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //um Pop up zuerstellen falls es änderungen gibt
-        setFocusable(true);
+        //Um fokus nur auf zeichenfläche damit Tastenkombinationen funktionieren
+        zeichenflaeche.setFocusable(true);
+        zeichenflaeche.addKeyListener(listener);
+
         setVisible(true);
         zeichenflaeche.requestFocusInWindow();
     }
