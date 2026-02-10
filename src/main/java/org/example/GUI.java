@@ -188,6 +188,18 @@ public class GUI extends JFrame {
             }
         });
 
+        Bedienungshilfe = new JMenu("Bedienungshilfe");
+        JMenuItem Hilfe = new JMenuItem("Hilfe");
+        Hilfe.addActionListener(e -> {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Willkomen bei dem Graphic Editor!\nHier ist die Bedienungsanleitung wie man diesen bedienen kann\n" +
+                            "᛫ Menüpunkt ",
+                            "Bedienungshilfe",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
 
         Auswahlmodi.add(kleinerRadierer);       //Eine Buttongroup für alle Sachen, damit kann nur ein Eintrag ausgewählt werden
         Auswahlmodi.add(mittlererRadierer);
@@ -210,6 +222,8 @@ public class GUI extends JFrame {
         ausfuellen.add(ausfuellencheckbox);
         ausfuellen.add(farbeFuellEimer);
 
+        Bedienungshilfe.add(Hilfe);
+
         datei.add(Speichernmenueleiste);
         datei.add(Laden);
         datei.add(NeueDatei);
@@ -224,6 +238,7 @@ public class GUI extends JFrame {
         menueleiste.add(radierer);
         menueleiste.add(hintergrund);
         menueleiste.add(ausfuellen);
+        menueleiste.add(Bedienungshilfe);
 
         leiste.add(menueleiste);
 
@@ -294,11 +309,12 @@ public class GUI extends JFrame {
         pack();
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //um Pop up zuerstellen falls es änderungen gibt
+        setFocusable(true);
         setVisible(true);
-
+        requestFocusInWindow();
     }
 
-    class MeinListener implements ActionListener, MouseListener, MouseMotionListener, WindowListener {
+    class MeinListener implements ActionListener, MouseListener, MouseMotionListener, WindowListener, KeyListener {
 
 
         int counter = 0;
@@ -645,6 +661,50 @@ public class GUI extends JFrame {
         public void windowDeactivated(WindowEvent e) {
 
         }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+
+        }
+        //Tastenkombinationen
+        @Override
+        public void keyPressed(KeyEvent e) {
+            //Speichern STRG + S
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S){ //ConrolDown bedeutet STrG gedrückt und Keyevent.VK_[Buchstabe] jeweeilige Buchstabe
+                zwischenspeichern();
+                Aenderungengespeichert = true;
+            }
+            //Undo STRG + Z
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
+                zeichenflaeche.undo();
+            }
+            //Redo STRG + Y
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z){
+                zeichenflaeche.redo();
+            }
+            //Neue Datei STRG + N
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_N){
+                zeichenflaeche.reset();
+                aktuelleDatei = null;
+            }
+            //Datei laden STRG + O
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_O){
+                ladeBild();
+            }
+            //Beenden STRG + Q
+            if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Q){
+                dispose();
+            }
+            //Dicke erhöhen mit +
+            if(e.getKeyCode() == KeyEvent.VK_PLUS) aktuelleDicke++;
+            //Dicke reduzieren mit -
+            if(e.getKeyCode() == KeyEvent.VK_MINUS) aktuelleDicke--;
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+
+        }
     }
 
     public void SpeichernUnter() {
@@ -694,4 +754,5 @@ public class GUI extends JFrame {
 
         }
     }
+
 }
