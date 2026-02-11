@@ -3,16 +3,23 @@ package org.example;
 import java.awt.*;
 
 public class Polygon {
+    /*
+    Initiliasierung mit standardmäßiger Werte
+     */
     private Color fuellfarbe = null;
-    private int[] xKoordinaten,yKoordinaten;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
+
+    private int[] xKoordinaten,yKoordinaten;
+
     public Polygon(int[] xKoordinaten,int[] yKoordinaten) {
         this.xKoordinaten = xKoordinaten;
         this.yKoordinaten = yKoordinaten;
     }
-
+    /*
+     Getter und Setter für die jeweiligen Instanzvariablen
+     */
     public int[] getxKoordinaten() {
         return xKoordinaten;
     }

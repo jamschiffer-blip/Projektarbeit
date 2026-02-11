@@ -3,18 +3,24 @@ package org.example;
 import java.awt.*;
 
 public class Kreis {
+    /*
+    Initiliasierung mit standardmäßiger Werte
+     */
     private Color fuellfarbe = null;
-    private int Durchmesser,xKoordinate,yKoordinate;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
+
+    private int Durchmesser,xKoordinate,yKoordinate;
 
     public Kreis(int Durchmesser,int xKoordinate,int yKoordinate) {
         this.xKoordinate = xKoordinate;
         this.yKoordinate = yKoordinate;
         this.Durchmesser = Durchmesser;
     }
-
+    /*
+     Getter und Setter für die jeweiligen Instanzvariablen
+     */
     public int getDurchmesser() {
         return Durchmesser;
     }

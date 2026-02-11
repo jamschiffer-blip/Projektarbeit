@@ -3,18 +3,25 @@ package org.example;
 import java.awt.*;
 
 public class Ellipse {
-    private Color fuellfarbe = null;
-    private int xKoordinate,yKoordinate,breite, hoehe;
+    /*
+    Initiliasierung mit standardmäßiger Werte
+     */
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
+    private Color fuellfarbe = null;
+
+    private int xKoordinate,yKoordinate,breite, hoehe;
+
     public Ellipse(int xKoordinate,int yKoordinate,int breite,int hoehe) {
         this.xKoordinate = xKoordinate;
         this.yKoordinate = yKoordinate;
         this.breite = breite;
         this.hoehe = hoehe;
     }
-
+    /*
+    Getter und Setter für die verschiedenen Instanzvariablen
+     */
     public int getxKoordinate() {
         return xKoordinate;
     }

@@ -3,16 +3,23 @@ package org.example;
 import java.awt.*;
 
 public class Linie {
-    private int StartX,EndX,StartY,EndY;
+    /*
+    Initiliasierung mit standardmäßiger Werte
+     */
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
+
+    private int StartX,EndX,StartY,EndY;
+
     public Linie(int StartX,int StartY,int EndX, int EndY) {
         this.StartX = StartX;
         this.StartY = StartY;
         this.EndX = EndX;
         this.EndY = EndY;
     }
-
+    /*
+     Getter und Setter für die jeweiligen Instanzvariablen
+     */
     public int getStartX() {
         return StartX;
     }

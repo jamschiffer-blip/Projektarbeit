@@ -3,18 +3,25 @@ package org.example;
 import java.awt.*;
 
 public class Rechteck {
+    /*
+    Initiliasierung mit standardmäßiger Werte
+     */
     private Color fuellfarbe = null;
-    private int xKoordinate,yKoordinate,Breite,Hoehe;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
+
+    private int xKoordinate,yKoordinate,Breite,Hoehe;
+
     public Rechteck(int StartxKoordinate,int StartyKoordinate,int Breite,int Hoehe) {
         this.xKoordinate = StartxKoordinate;
         this.yKoordinate = StartyKoordinate;
         this.Breite = Breite;
         this.Hoehe = Hoehe;
     }
-
+    /*
+     Getter und Setter für die jeweiligen Instanzvariablen
+     */
     public int getxKoordinate() {
         return xKoordinate;
     }

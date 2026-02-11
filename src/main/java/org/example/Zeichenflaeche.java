@@ -28,21 +28,26 @@ public class Zeichenflaeche extends JPanel {
     private Color aktuelleFuellfarbe;
 
     public Zeichenflaeche() {
-        Linien = new ArrayList<>();//hier werden die Linien die gezeichnet werden erstgespeichert
+        //hier werden die Shapes die gezeichnet werden erstgespeichert
+        Linien = new ArrayList<>();
         Ellipsen = new ArrayList<>();
         Kreise = new ArrayList<>();
         Rechtecke = new ArrayList<>();
         Polygons = new ArrayList<>();
         Radiererpunkte = new ArrayList<Point>();
     }
+    /*
+    Hier folgen die zeichne Methoden, diese zeichnen die jeweiligen Shapes
+    Alle verwenden aus Zustandsspeicher die Methode fuehreaus um Un- und Redo zu ermöglichen
+     */
     public void zeichneLinie(Linie linie){ //nur für gerade Linie
         zustandsspeicher.fuehreaus(
                 () -> {
-                    Linien.add(linie);
+                    Linien.add(linie); //Hier wird Linie hinzugefügt dieser Teil, wird benötigt zum erstmaligen Zeichen eines Shapes oder für Redo
                     repaint();
                 },
                 ()-> {
-                    Linien.remove(linie);
+                    Linien.remove(linie); //Hier wird die Linie wieder entfernt, wird benötigt für Redo
                     repaint();
                 }
                 );
@@ -50,7 +55,7 @@ public class Zeichenflaeche extends JPanel {
     public void zeichneLinie(List<Linie> Linien){ //fuer den Modus Frei dann wird ein kompletter strcih entfernt,
         zustandsspeicher.fuehreaus(
                 () -> {
-                    this.Linien.addAll(Linien);      //da es mehrere Listen mit dem namen Linien gibt
+                    this.Linien.addAll(Linien);
                     repaint();
                 },
                 () -> {
@@ -114,25 +119,32 @@ public class Zeichenflaeche extends JPanel {
     public void redo(){
         zustandsspeicher.redo();
     }
-
+    /*
+    Hier wird das eigentliche Bild mit gemalt
+    paintComponent wird bei Repaint immer aufgerufen
+     */
     @Override
-    protected void paintComponent(Graphics g) { //überschreiben von paintcomponent anstatt graphics2d wäre sonst zzu gross
+    protected void paintComponent(Graphics g) { //überschreiben von paintComponent anstatt Graphics2D. Überschreiben von Graphics2D wäre zu viel
         super.paintComponent(g);
         Graphics2D grafik = (Graphics2D) g ;
         grafik.setColor(getHintergrundfarbe());  //hierbei wird die Zeichenfläche mit der jeweiligen Hintergrundfarbeübermalt
         grafik.fillRect(0,0,getWidth(),getHeight());
 
+        //Wenn es Bild gibt das geladen wurde wird es gezeichnet
         if(Bild != null){
-            grafik.drawImage(Bild,0,0,null); //Wenn es Bild gibt das geladen wurde wird es gezeichnet
+            grafik.drawImage(Bild,0,0,null);
         }
+        /*
+        Jetzt folgen mehrerere Schleifen in dem alle Shapes gezeichnet werden
+         */
         for(Linie linie : Linien){
-            grafik.setStroke(new BasicStroke(linie.getDicke())); //als Methode schreiben evtl
+            grafik.setStroke(new BasicStroke(linie.getDicke()));
             grafik.setColor(linie.getFarbe());
             grafik.drawLine(linie.getStartX(),linie.getStartY(),linie.getEndX(), linie.getEndY());
         }
 
         for(Ellipse ellipse : Ellipsen) {
-            if(ellipse.getFuellfarbe() != null){ //Zuerest füllen damit RAndlinien sichtbar werden durchübermalen
+            if(ellipse.getFuellfarbe() != null){ //Zuerst füllen damit Randlinien sichtbar werden durchübermalen
                 grafik.setColor(getAktuelleFuellfarbe());
                 grafik.fillOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
             }
@@ -171,6 +183,9 @@ public class Zeichenflaeche extends JPanel {
             grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
 
         }
+        /*
+        Hier werden die Previewshapes gezeichnet
+         */
         if(previewLinie!=null){
             grafik.setStroke(new BasicStroke(previewLinie.getDicke())); //als Methode schreiben evtl
             grafik.setColor(previewLinie.getFarbe());
@@ -217,14 +232,20 @@ public class Zeichenflaeche extends JPanel {
 
 
         }
+        //Auch ein Radierstrich zählt zu den SHapes
         grafik.setColor(getHintergrundfarbe());
         int radius = getRadierradius();
         int durchmesser = 2*radius;
         for(Point radierpunkt : Radiererpunkte)
             grafik.fillOval(radierpunkt.x - radius,radierpunkt.y -radius,durchmesser,durchmesser);
     }
+    /*
+    Diese methode resetet das Bild, sie wird unter Anderem beim erstellen einer neuen Datei genutzt
+    Sie leert alle Listen der jeweiligen Shapes und setzt die Hintergrundfarbe, welche aktuell gefragt ist
+    Die Hintergrundfarbe ist standardmäßig weiß
+     */
     public void reset(){
-        Linien.clear();;
+        Linien.clear();
         Ellipsen.clear();
         Kreise.clear();
         Rechtecke.clear();;
@@ -233,10 +254,13 @@ public class Zeichenflaeche extends JPanel {
         setHintergrundfarbe(getHintergrundfarbe());
         repaint();
     }
-
+    /*
+    Methode, die die gemalte Zeichenfläche als BufferedImage speichert, dieses kann später als JPG Datei gespeichert werden
+    Hierbei wird das Bild eins zu eins nachgemalt und anschließend gespeichert
+     */
     public BufferedImage wandleBildinBufferdImage() {
         BufferedImage Bild = new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_RGB); //Um als JPG zu zeichen es gibt RGB Farben
-        Graphics2D grafik = Bild.createGraphics(); //hiermit kann man im BufferedImage zeichnen
+        Graphics2D grafik = Bild.createGraphics(); //Hiermit kann man im BufferedImage zeichnen
 
         //Jetzt wird das Bild nachgemalt und anschließend gespüeichert
         grafik.setColor(getHintergrundfarbe());
@@ -314,6 +338,10 @@ public class Zeichenflaeche extends JPanel {
 
         );
     }
+    /*
+    Neue Radiere Methode, es wird wie bei zeichneLinie eine Liste erstellt der jeweiligen Radierpunkte, damit
+    ein gesamter radierstrich daraus entsteht und dieser auch mit Redo und Undo rückgängig gemacht werden kann
+     */
     public void radiere(List<Point> Punkte){
         zustandsspeicher.fuehreaus(
                 () ->{
@@ -328,15 +356,13 @@ public class Zeichenflaeche extends JPanel {
         );
     }
 
-    public void setBild(BufferedImage bild) {
-        Bild = bild;
-        setPreferredSize(new Dimension(Bild.getWidth(),Bild.getHeight())); //Die zeichenflaeche wird damit so groß wie das gespeierte Bild,damit wird es 1:1 wenn es geladen wird
-        revalidate(); //Neuberechnung für Layout
-        repaint();
-    }
-    public BufferedImage getBild(){
-        return Bild;
-    }
+
+
+    /*
+    Clear und set Methoden für die previews
+    Clear um Preview zu entfernen
+    Set um Preview zu setzen
+     */
     public void setPreviewKreis(Kreis kreis){
         previewKreis = kreis;
         repaint();
@@ -377,7 +403,9 @@ public class Zeichenflaeche extends JPanel {
         previewPolygon = null;
         repaint();
     }
-
+    /*
+    Es folgen hier weitere Getter und Setter
+     */
     public Color getHintergrundfarbe() {
         return Hintergrundfarbe;
     }
@@ -408,5 +436,14 @@ public class Zeichenflaeche extends JPanel {
 
     public void setAktuelleFuellfarbe(Color aktuelleFuellfarbe) {
         this.aktuelleFuellfarbe = aktuelleFuellfarbe;
+    }
+    public void setBild(BufferedImage bild) {
+        Bild = bild;
+        setPreferredSize(new Dimension(Bild.getWidth(),Bild.getHeight())); //Die zeichenflaeche wird damit so groß wie das gespeierte Bild,damit wird es 1:1 wenn es geladen wird
+        revalidate(); //Neuberechnung für Layout
+        repaint();
+    }
+    public BufferedImage getBild(){
+        return Bild;
     }
 }
