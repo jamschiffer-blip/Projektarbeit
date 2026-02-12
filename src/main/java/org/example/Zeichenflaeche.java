@@ -1,6 +1,5 @@
 package org.example;
 
-import javax.sound.sampled.Line;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -14,6 +13,7 @@ public class Zeichenflaeche extends JPanel {
     public List<Rechteck> Rechtecke;
     public List<Polygon> Polygons;
     public List<Point> Radiererpunkte;
+    public List<Text> Texte;
     private BufferedImage Bild;
     private Zustandsspeicher zustandsspeicher = new Zustandsspeicher();
     private Kreis previewKreis;
@@ -26,6 +26,9 @@ public class Zeichenflaeche extends JPanel {
     private Point Radierpunkt;
     private boolean fuellFarbebenutzen;
     private Color aktuelleFuellfarbe;
+    private List<Object> Reihenfolge;//Für die richtige Reihenfolge damit radieren funktioniert
+    private List<Linie> previewFreihand = null;
+    private List<Point> previewRadierer = null;
 
     public Zeichenflaeche() {
         //hier werden die Shapes die gezeichnet werden erstgespeichert
@@ -34,7 +37,9 @@ public class Zeichenflaeche extends JPanel {
         Kreise = new ArrayList<>();
         Rechtecke = new ArrayList<>();
         Polygons = new ArrayList<>();
-        Radiererpunkte = new ArrayList<Point>();
+        Radiererpunkte = new ArrayList<>();
+        Texte = new ArrayList<>();
+        Reihenfolge = new ArrayList<>(); //Reihenfolge aller Aktionen
     }
     /*
     Hier folgen die zeichne Methoden, diese zeichnen die jeweiligen Shapes
@@ -44,22 +49,27 @@ public class Zeichenflaeche extends JPanel {
         zustandsspeicher.fuehreaus(
                 () -> {
                     Linien.add(linie); //Hier wird Linie hinzugefügt dieser Teil, wird benötigt zum erstmaligen Zeichen eines Shapes oder für Redo
+                    Reihenfolge.add(linie);
                     repaint();
                 },
                 ()-> {
                     Linien.remove(linie); //Hier wird die Linie wieder entfernt, wird benötigt für Redo
+                    Reihenfolge.remove(linie);
                     repaint();
                 }
                 );
     }
     public void zeichneLinie(List<Linie> Linien){ //fuer den Modus Frei dann wird ein kompletter strcih entfernt,
+        List<Linie> Kopie = new ArrayList<>(Linien); //Kopie anlegen da die Liste Linien später geleert wird
         zustandsspeicher.fuehreaus(
                 () -> {
                     this.Linien.addAll(Linien);
+                    Reihenfolge.add(Kopie);
                     repaint();
                 },
                 () -> {
                     this.Linien.removeAll(Linien);
+                    Reihenfolge.remove(Kopie);
                     repaint();
 
                 }
@@ -69,10 +79,12 @@ public class Zeichenflaeche extends JPanel {
         zustandsspeicher.fuehreaus(
                 () -> {
                     Ellipsen.add(ellipse);
+                    Reihenfolge.add(ellipse);
                     repaint();
                 },
                 ()-> {
                     Ellipsen.remove(ellipse);
+                    Reihenfolge.remove(ellipse);
                     repaint();
                 }
         );
@@ -81,10 +93,12 @@ public class Zeichenflaeche extends JPanel {
         zustandsspeicher.fuehreaus(
                 () -> {
                     Kreise.add(kreis);
+                    Reihenfolge.add(kreis);
                     repaint();
                 },
                 ()-> {
                     Kreise.remove(kreis);
+                    Reihenfolge.remove(kreis);
                     repaint();
                 }
         );
@@ -93,10 +107,12 @@ public class Zeichenflaeche extends JPanel {
         zustandsspeicher.fuehreaus(
                 () -> {
                     Rechtecke.add(rechteck);
+                    Reihenfolge.add(rechteck);
                     repaint();
                 },
                 ()-> {
                     Rechtecke.remove(rechteck);
+                    Reihenfolge.remove(rechteck);
                     repaint();
                 }
         );
@@ -105,14 +121,68 @@ public class Zeichenflaeche extends JPanel {
         zustandsspeicher.fuehreaus(
                 () -> {
                     Polygons.add(polygon);
+                    Reihenfolge.add(polygon);
                     repaint();
                 },
                 ()-> {
                     Polygons.remove(polygon);
+                    Reihenfolge.remove(polygon);
                     repaint();
                 }
         );
     }
+    public void radiere(int xKoordinate,int yKoordinate){
+        Point Radierpunkt = new Point(xKoordinate,yKoordinate);
+        zustandsspeicher.fuehreaus(
+                () ->{
+                    Radiererpunkte.add(Radierpunkt);
+                    repaint();
+                },
+                () -> {
+                    Radiererpunkte.remove(Radierpunkt);
+                    repaint();
+                }
+
+        );
+    }
+    /*
+    Neue Radiere Methode, es wird wie bei zeichneLinie eine Liste erstellt der jeweiligen Radierpunkte, damit
+    ein gesamter radierstrich daraus entsteht und dieser auch mit Redo und Undo rückgängig gemacht werden kann
+     */
+    public void radiere(List<Point> Punkte){
+        List<Point> Kopie = new ArrayList<>(Punkte); //Auch hier wie beim freien Zeichnen Kopie anlegen, da die Liste Punkte geleert wird, nach einem Radiervorgang
+        zustandsspeicher.fuehreaus(
+                () ->{
+                    this.Radiererpunkte.addAll(Punkte);
+                    Reihenfolge.add(new ArrayList<>(Kopie));
+                    repaint();
+                },
+                () -> {
+                    this.Radiererpunkte.removeAll(Punkte);
+                    Reihenfolge.remove(new ArrayList<>(Kopie));
+                    repaint();
+                }
+
+        );
+    }
+    public void zeichneText(Text text){
+        zustandsspeicher.fuehreaus(
+                () -> {
+                    Texte.add(text);
+                    Reihenfolge.add(text);
+                    repaint();
+                },
+                () -> {
+                    Texte.remove(text);
+                    Reihenfolge.remove(text);
+                    repaint();
+                }
+
+        );
+    }
+    /*
+    Diese Methoden werden in GUI aufgerufen, für Un- und Redo
+     */
     public void undo(){
         zustandsspeicher.undo();
     }
@@ -135,53 +205,94 @@ public class Zeichenflaeche extends JPanel {
             grafik.drawImage(Bild,0,0,null);
         }
         /*
-        Jetzt folgen mehrerere Schleifen in dem alle Shapes gezeichnet werden
+        Hier kommen die finalen Zeichnungen in Richtiger Reihenfolge
          */
-        for(Linie linie : Linien){
-            grafik.setStroke(new BasicStroke(linie.getDicke()));
-            grafik.setColor(linie.getFarbe());
-            grafik.drawLine(linie.getStartX(),linie.getStartY(),linie.getEndX(), linie.getEndY());
-        }
+        for(Object o : Reihenfolge) {
 
-        for(Ellipse ellipse : Ellipsen) {
-            if(ellipse.getFuellfarbe() != null){ //Zuerst füllen damit Randlinien sichtbar werden durchübermalen
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+            //Gerade Linie
+            if(o instanceof Linie linie)
+             {
+                grafik.setStroke(new BasicStroke(linie.getDicke()));
+                grafik.setColor(linie.getFarbe());
+                grafik.drawLine(linie.getStartX(), linie.getStartY(), linie.getEndX(), linie.getEndY());
+                }
+            //Freihand Linie
+            /*
+            Wenn also das aktuelle Objekt in der Reihenfolge eine Liste ist,diese nicht leer ist und diese vom Typ Linie ist,
+            wird jeder einzelne kleine Linie gezeichnet
+             */
+            else if(o instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof Linie){
+                List<Linie> liste = (List<Linie>) o ; //Das aktuelle Objekt also die jeweilige Liste wird übergeben
+                for(Linie linie : liste) {
+                    grafik.setStroke(new BasicStroke(linie.getDicke()));
+                    grafik.setColor(linie.getFarbe());
+                    grafik.drawLine(linie.getStartX(), linie.getStartY(), linie.getEndX(), linie.getEndY());
+                }
             }
-            grafik.setStroke(new BasicStroke(ellipse.getDicke())); //jetzt umranden
-            grafik.setColor(ellipse.getFarbe());
-            grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
 
-        }
-        for(Kreis kreis : Kreise) {
-            if(kreis.getFuellfarbe()!=null){
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser());
+            //Ellipse
+            else if (o instanceof Ellipse ellipse) {
+                if (ellipse.getFuellfarbe() != null) { //Zuerst füllen damit Randlinien sichtbar werden durchübermalen
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillOval(ellipse.getxKoordinate(), ellipse.getyKoordinate(), ellipse.getBreite(), ellipse.getHoehe());
+                }
+                grafik.setStroke(new BasicStroke(ellipse.getDicke())); //jetzt umranden
+                grafik.setColor(ellipse.getFarbe());
+                grafik.drawOval(ellipse.getxKoordinate(), ellipse.getyKoordinate(), ellipse.getBreite(), ellipse.getHoehe());
+
             }
-            grafik.setStroke(new BasicStroke(kreis.getDicke()));
-            grafik.setColor(kreis.getFarbe());
-            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() ); //hoehe und breite sind bei kreis gleich
+            //Kreis
+            else if (o instanceof Kreis kreis) {
+                if (kreis.getFuellfarbe() != null) {
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillOval(kreis.getxKoordinate(), kreis.getyKoordinate(), kreis.getDurchmesser(), kreis.getDurchmesser());
+                }
+                grafik.setStroke(new BasicStroke(kreis.getDicke()));
+                grafik.setColor(kreis.getFarbe());
+                grafik.drawOval(kreis.getxKoordinate(), kreis.getyKoordinate(), kreis.getDurchmesser(), kreis.getDurchmesser()); //hoehe und breite sind bei kreis gleich
 
-        }
-        for(Rechteck rechteck : Rechtecke) {
-            if(rechteck.getFuellfarbe()!=null){
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
             }
-            grafik.setStroke(new BasicStroke(rechteck.getDicke()));
-            grafik.setColor(rechteck.getFarbe());
-            grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+            //Rechteck
+            else if (o instanceof Rechteck rechteck) {
+                if (rechteck.getFuellfarbe() != null) {
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillRect(rechteck.getxKoordinate(), rechteck.getyKoordinate(), rechteck.getBreite(), rechteck.getHoehe());
+                }
+                grafik.setStroke(new BasicStroke(rechteck.getDicke()));
+                grafik.setColor(rechteck.getFarbe());
+                grafik.drawRect(rechteck.getxKoordinate(), rechteck.getyKoordinate(), rechteck.getBreite(), rechteck.getHoehe());
 
-        }
-        for(Polygon polygon : Polygons) {
-            if(polygon.getFuellfarbe() != null){
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
             }
-            grafik.setStroke(new BasicStroke(polygon.getDicke()));
-            grafik.setColor(polygon.getFarbe());
-            grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            //Polygon
+            else if (o instanceof Polygon polygon) {
+                if (polygon.getFuellfarbe() != null) {
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillPolygon(polygon.getxKoordinaten(), polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+                }
+                grafik.setStroke(new BasicStroke(polygon.getDicke()));
+                grafik.setColor(polygon.getFarbe());
+                grafik.drawPolygon(polygon.getxKoordinaten(), polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            }
+            //Text
+            else if (o instanceof Text text) {
+                grafik.setColor(text.getTextfarbe());
+                grafik.setFont(text.getSchriftart());
+                grafik.drawString(text.getText(), text.getxKoordinate(), text.getyKoordinate());
+            }
+            //Auch ein Radierstrich zählt zu den Shapes
+            /*
+            Selbe Abfrage wie beim Freihand Strich, wenn das aktuelle Objekt also in der Reihenfolge eine Liste ist, diese nicht leer
+            und der das erste Objekt dieser Liste ein vom Typ Punkt ist ist es ein Radierstrich, dieser wird gezeichnet
+             */
+            else if(o instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof Point) {
+                List<Point> punkte = (List<Point>) o;
 
+                grafik.setColor(getHintergrundfarbe());
+                int radius = getRadierradius();
+                int durchmesser = 2 * radius;
+                for (Point radierpunkt : punkte)
+                    grafik.fillOval(radierpunkt.x - radius, radierpunkt.y - radius, durchmesser, durchmesser);
+            }
         }
         /*
         Hier werden die Previewshapes gezeichnet
@@ -221,23 +332,30 @@ public class Zeichenflaeche extends JPanel {
             grafik.drawRect(previewRechteck.getxKoordinate(),previewRechteck.getyKoordinate(),previewRechteck.getBreite(),previewRechteck.getHoehe());
 
         }
-        if(previewEllipse != null){
-            if(previewEllipse.getFuellfarbe()!=null){
+        if(previewEllipse != null) {
+            if (previewEllipse.getFuellfarbe() != null) {
                 grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
+                grafik.fillOval(previewEllipse.getxKoordinate(), previewEllipse.getyKoordinate(), previewEllipse.getBreite(), previewEllipse.getHoehe());
             }
             grafik.setStroke(new BasicStroke(previewEllipse.getDicke()));
             grafik.setColor(previewEllipse.getFarbe());
-            grafik.drawOval(previewEllipse.getxKoordinate(),previewEllipse.getyKoordinate(),previewEllipse.getBreite(),previewEllipse.getHoehe());
-
-
+            grafik.drawOval(previewEllipse.getxKoordinate(), previewEllipse.getyKoordinate(), previewEllipse.getBreite(), previewEllipse.getHoehe());
         }
-        //Auch ein Radierstrich zählt zu den SHapes
-        grafik.setColor(getHintergrundfarbe());
-        int radius = getRadierradius();
-        int durchmesser = 2*radius;
-        for(Point radierpunkt : Radiererpunkte)
-            grafik.fillOval(radierpunkt.x - radius,radierpunkt.y -radius,durchmesser,durchmesser);
+            if(previewFreihand != null && !previewFreihand.isEmpty()){
+            for (Linie linie : previewFreihand){
+                grafik.setStroke(new BasicStroke(linie.getDicke()));
+                grafik.setColor(linie.getFarbe());
+                grafik.drawLine(linie.getStartX(), linie.getStartY(), linie.getEndX(), linie.getEndY());
+            }
+        }
+        if(previewRadierer != null && !previewRadierer.isEmpty()){
+            grafik.setColor(getHintergrundfarbe());
+            int radius = getRadierradius();
+            int durchmesser = 2 * radius;
+            for (Point radierpunkt : previewRadierer)
+                grafik.fillOval(radierpunkt.x - radius, radierpunkt.y - radius, durchmesser, durchmesser);
+        }
+
     }
     /*
     Diese methode resetet das Bild, sie wird unter Anderem beim erstellen einer neuen Datei genutzt
@@ -251,6 +369,8 @@ public class Zeichenflaeche extends JPanel {
         Rechtecke.clear();;
         Polygons.clear();
         Radiererpunkte.clear();
+        Texte.clear();
+        Reihenfolge.clear();
         setHintergrundfarbe(getHintergrundfarbe());
         repaint();
     }
@@ -268,96 +388,98 @@ public class Zeichenflaeche extends JPanel {
 
 
 
-        for(Linie linie : Linien){
-            grafik.setStroke(new BasicStroke(linie.getDicke()));
-            grafik.setColor(linie.getFarbe());
-            grafik.drawLine(linie.getStartX(),linie.getStartY(),linie.getEndX(), linie.getEndY());
-        }
+        for(Object o : Reihenfolge) {
 
-        for(Ellipse ellipse : Ellipsen) {
-            if(ellipse.getFuellfarbe()!=null){
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
+            //Gerade Linie
+            if(o instanceof Linie linie)
+            {
+                grafik.setStroke(new BasicStroke(linie.getDicke()));
+                grafik.setColor(linie.getFarbe());
+                grafik.drawLine(linie.getStartX(), linie.getStartY(), linie.getEndX(), linie.getEndY());
             }
-            grafik.setStroke(new BasicStroke(ellipse.getDicke()));
-            grafik.setColor(ellipse.getFarbe());
-            grafik.drawOval(ellipse.getxKoordinate(),ellipse.getyKoordinate(),ellipse.getBreite(),ellipse.getHoehe());
-
-        }
-        for(Kreis kreis : Kreise) {
-            if(kreis.getFuellfarbe()!=null){
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser());
+            //Freihand Linie
+            /*
+            Wenn also das aktuelle Objekt in der Reihenfolge eine Liste ist,diese nicht leer ist und diese vom Typ Linie ist,
+            wird jeder einzelne kleine Linie gezeichnet
+             */
+            else if(o instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof Linie){
+                List<Linie> liste = (List<Linie>) o ; //Das aktuelle Objekt also die jeweilige Liste wird übergeben
+                for(Linie linie : liste) {
+                    grafik.setStroke(new BasicStroke(linie.getDicke()));
+                    grafik.setColor(linie.getFarbe());
+                    grafik.drawLine(linie.getStartX(), linie.getStartY(), linie.getEndX(), linie.getEndY());
+                }
             }
-            grafik.setStroke(new BasicStroke(kreis.getDicke()));
-            grafik.setColor(kreis.getFarbe());
-            grafik.drawOval(kreis.getxKoordinate(),kreis.getyKoordinate(),kreis.getDurchmesser(), kreis.getDurchmesser() );//hoehe und breite sind bei kreis gleich
 
-        }
-        for(Rechteck rechteck : Rechtecke) {
-            if(rechteck.getFuellfarbe()!=null){
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+            //Ellipse
+            else if (o instanceof Ellipse ellipse) {
+                if (ellipse.getFuellfarbe() != null) { //Zuerst füllen damit Randlinien sichtbar werden durchübermalen
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillOval(ellipse.getxKoordinate(), ellipse.getyKoordinate(), ellipse.getBreite(), ellipse.getHoehe());
+                }
+                grafik.setStroke(new BasicStroke(ellipse.getDicke())); //jetzt umranden
+                grafik.setColor(ellipse.getFarbe());
+                grafik.drawOval(ellipse.getxKoordinate(), ellipse.getyKoordinate(), ellipse.getBreite(), ellipse.getHoehe());
+
             }
-            grafik.setStroke(new BasicStroke(rechteck.getDicke()));
-            grafik.setColor(rechteck.getFarbe());
-            grafik.drawRect(rechteck.getxKoordinate(),rechteck.getyKoordinate(),rechteck.getBreite(),rechteck.getHoehe());
+            //Kreis
+            else if (o instanceof Kreis kreis) {
+                if (kreis.getFuellfarbe() != null) {
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillOval(kreis.getxKoordinate(), kreis.getyKoordinate(), kreis.getDurchmesser(), kreis.getDurchmesser());
+                }
+                grafik.setStroke(new BasicStroke(kreis.getDicke()));
+                grafik.setColor(kreis.getFarbe());
+                grafik.drawOval(kreis.getxKoordinate(), kreis.getyKoordinate(), kreis.getDurchmesser(), kreis.getDurchmesser()); //hoehe und breite sind bei kreis gleich
 
-        }
-        for(Polygon polygon : Polygons) {
-            if(polygon.getFuellfarbe()!=null){
-                grafik.setColor(getAktuelleFuellfarbe());
-                grafik.fillPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
             }
-            grafik.setStroke(new BasicStroke(polygon.getDicke()));
-            grafik.setColor(polygon.getFarbe());
-            grafik.drawPolygon(polygon.getxKoordinaten(),polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            //Rechteck
+            else if (o instanceof Rechteck rechteck) {
+                if (rechteck.getFuellfarbe() != null) {
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillRect(rechteck.getxKoordinate(), rechteck.getyKoordinate(), rechteck.getBreite(), rechteck.getHoehe());
+                }
+                grafik.setStroke(new BasicStroke(rechteck.getDicke()));
+                grafik.setColor(rechteck.getFarbe());
+                grafik.drawRect(rechteck.getxKoordinate(), rechteck.getyKoordinate(), rechteck.getBreite(), rechteck.getHoehe());
 
+            }
+            //Polygon
+            else if (o instanceof Polygon polygon) {
+                if (polygon.getFuellfarbe() != null) {
+                    grafik.setColor(getAktuelleFuellfarbe());
+                    grafik.fillPolygon(polygon.getxKoordinaten(), polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+                }
+                grafik.setStroke(new BasicStroke(polygon.getDicke()));
+                grafik.setColor(polygon.getFarbe());
+                grafik.drawPolygon(polygon.getxKoordinaten(), polygon.getyKoordinaten(), polygon.getAnzahlPunkte());
+            }
+            //Text
+            else if (o instanceof Text text) {
+                grafik.setColor(text.getTextfarbe());
+                grafik.setFont(text.getSchriftart());
+                grafik.drawString(text.getText(), text.getxKoordinate(), text.getyKoordinate());
+            }
+            //Auch ein Radierstrich zählt zu den Shapes
+            /*
+            Selbe Abfrage wie beim Freihand Strich, wenn das aktuelle Objekt also in der Reihenfolge eine Liste ist, diese nicht leer
+            und der das erste Objekt dieser Liste ein vom Typ Punkt ist ist es ein Radierstrich, dieser wird gezeichnet
+             */
+            else if(o instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof Point) {
+                List<Point> punkte = (List<Point>) o;
+
+                grafik.setColor(getHintergrundfarbe());
+                int radius = getRadierradius();
+                int durchmesser = 2 * radius;
+                for (Point radierpunkt : punkte)
+                    grafik.fillOval(radierpunkt.x - radius, radierpunkt.y - radius, durchmesser, durchmesser);
+            }
         }
-        grafik.setColor(getHintergrundfarbe());
-        int radius = getRadierradius();
-        int durchmesser = 2*radius;
-        for(Point radierpunkt : Radiererpunkte)
-            grafik.fillOval(radierpunkt.x - radius,radierpunkt.y -radius,durchmesser,durchmesser);
         grafik.dispose();
 
 
         return Bild;
     }
-    public void radiere(int xKoordinate,int yKoordinate){
-         Point Radierpunkt = new Point(xKoordinate,yKoordinate);
-        zustandsspeicher.fuehreaus(
-                () ->{
-                    Radiererpunkte.add(Radierpunkt);
-                    repaint();
-                },
-                () -> {
-                    Radiererpunkte.remove(Radierpunkt);
-                    repaint();
-                }
-
-        );
-    }
-    /*
-    Neue Radiere Methode, es wird wie bei zeichneLinie eine Liste erstellt der jeweiligen Radierpunkte, damit
-    ein gesamter radierstrich daraus entsteht und dieser auch mit Redo und Undo rückgängig gemacht werden kann
-     */
-    public void radiere(List<Point> Punkte){
-        zustandsspeicher.fuehreaus(
-                () ->{
-                    this.Radiererpunkte.addAll(Punkte);
-                    repaint();
-                },
-                () -> {
-                    this.Radiererpunkte.removeAll(Punkte);
-                    repaint();
-                }
-
-        );
-    }
-
-
-
     /*
     Clear und set Methoden für die previews
     Clear um Preview zu entfernen
@@ -445,5 +567,25 @@ public class Zeichenflaeche extends JPanel {
     }
     public BufferedImage getBild(){
         return Bild;
+    }
+
+    public void setPreviewFreihand(List<Linie> linien) {
+        this.previewFreihand = linien;
+        repaint();
+    }
+
+    public void clearPreviewFreihand () {
+        this.previewFreihand = null;
+        repaint();
+    }
+
+    public void setPreviewRadierer(List<Point> punkte) {
+        this.previewRadierer = punkte;
+        repaint();
+    }
+
+    public void clearPreviewRadierer() {
+        this.previewRadierer = null;
+        repaint();
     }
 }

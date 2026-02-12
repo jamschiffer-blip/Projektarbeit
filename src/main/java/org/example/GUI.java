@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI extends JFrame {
@@ -36,6 +38,9 @@ public class GUI extends JFrame {
     private JPanel Aenderungenungespeichertfenster, neueDateierstellenfenster;
     private JDialog dialog;
     private ButtonGroup Auswahlmodi, Radierradius;
+    private int schriftgroesse = 20;
+    private Font schriftart = new Font(Font.SANS_SERIF,Font.PLAIN,schriftgroesse);
+    private Color aktuelleTextFarbe = Color.BLACK;
 
     public GUI() {
         /*
@@ -51,10 +56,10 @@ public class GUI extends JFrame {
         Verbinden mit den Listenern
          */
         MeinListener listener = new MeinListener();
-        zeichenflaeche.addMouseListener(listener);      //Diese beiden Listener braucht man nur zum Zeichnen, deswegen bekommt zeichenflaeche nur sie
-        zeichenflaeche.addMouseMotionListener(listener);
-        addWindowListener(listener);
-        addKeyListener(listener);
+        zeichenflaeche.addMouseListener(listener.mouseAdapter);      //Diese beiden Listener braucht man nur zum Zeichnen, deswegen bekommt zeichenflaeche nur sie
+        zeichenflaeche.addMouseMotionListener(listener.mouseMotionAdapter);
+        addWindowListener(listener.windowAdapter);
+
 
 
 
@@ -130,8 +135,17 @@ public class GUI extends JFrame {
             if (Eingabe == null) return;    //Wenn Eingabe abgebrochen wird, soll vorgang abgebrochen werden
             try {
                 float dicke = Float.parseFloat(Eingabe);    //nur für gültige Eingaben der Dicke
-                if (dicke > 0) aktuelleDicke = dicke;
+                if (dicke > 0 && dicke <=50) aktuelleDicke = dicke;
+                else if(dicke<=0) throw new NumberFormatException("Wert muss positiv sein!");
+                else if(dicke>50) throw new NumberFormatException("Wert ist zu groß!");
             } catch (NumberFormatException exception) {
+                //Erstellen eines Fensters bei falscher Eingabe
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Gültige positive Zahl unter 50 eingeben",
+                        "Ungültige Eingabe",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 
@@ -162,12 +176,14 @@ public class GUI extends JFrame {
         Auswahlmodi.add(Rechteck);
         Auswahlmodi.add(Polygon);
 
+
         formen.add(freiesZeichnen);
         formen.add(geradesZeichnen);
         formen.add(Kreis);
         formen.add(Ellipse);
         formen.add(Rechteck);
         formen.add(Polygon);
+
 
         //Erstellen des Menüpunktes Radierer
         radierer = new JMenu("Radierer");
@@ -262,13 +278,58 @@ public class GUI extends JFrame {
                             "STRG + O um ein Bild zu laden\n" +
                             "STRG + Q um Anwendung zu schließen\n" +
                             "+/- um Dicke zu verändern\n" +
-                            "ACHTUNG! Tastenkombinationen funktionieren nur wenn man nicht gerdae auf die Menüleiste drückt!",
+                            "\n" +
+                            "ALT + D für Menüpunkt Datei\n" +
+                            "ALT + S für Menüpunkt Stift\n" +
+                            "ALT + F für Menüpunkt Formen\n" +
+                            "ALT + B für Menüpunkt Bedienungshilfe\n" +
+                            "ALT + E für Menüpunkt Radierer\n" +
+                            "ALT + H für Menüpunkt Hintergrund\n" +
+                            "ALT + T für Menüpunkt Text\n" +
+                            "ALT + U für Menüpunkt Fülleimer\n" ,
                             "Bedienungshilfe",
                     JOptionPane.INFORMATION_MESSAGE
             );
         });
 
         Bedienungshilfe.add(Hilfe);
+        /*
+        Erstellen des Menüpunktes Text
+         */
+        text = new JMenu("Text");
+        JRadioButtonMenuItem Text = new JRadioButtonMenuItem("Text");
+        Text.addActionListener(e -> Modus = "Text");
+        JMenuItem farbeText = new JMenuItem("Farbe");
+        farbeText.addActionListener(e -> {
+            Color farbe = JColorChooser.showDialog(this, "Textfarbe wählen", aktuelleTextFarbe); //Damit kann die Frabe ausgewählt werden
+            if (farbe != null) aktuelleTextFarbe = farbe;
+        });
+        JMenuItem dickeText = new JMenuItem("Dicke");
+        dickeText.addActionListener(e -> {
+            String Eingabe = JOptionPane.showInputDialog(       //Erstellen eines Eingabefeldes um Dicke einzustellen
+                    this, "Dicke eingeben: ",
+                    schriftgroesse
+            );
+            if (Eingabe == null) return;    //Wenn Eingabe abgebrochen wird, soll vorgang abgebrochen werden
+            try {
+                int dicke = Integer.parseInt(Eingabe);    //nur für gültige Eingaben der Dicke
+                if (dicke > 0 && dicke <=50) schriftgroesse = dicke;
+                else if(dicke<=0) throw new NumberFormatException("Wert muss positiv sein!");
+                else if(dicke>30) throw new NumberFormatException("Wert ist zu groß!");
+            } catch (NumberFormatException exception) {
+                //Erstellen eines Fensters bei falscher Eingabe
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Gültige positive Zahl unter 50 eingeben",
+                        "Ungültige Eingabe",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+        Auswahlmodi.add(Text);     //Damit nur ein Modus ausgewählt sein kann
+        text.add(Text);
+        text.add(dickeText);
+        text.add(farbeText);
 
 
         menueleiste.setOpaque(true);
@@ -280,6 +341,7 @@ public class GUI extends JFrame {
         menueleiste.add(radierer);
         menueleiste.add(hintergrund);
         menueleiste.add(ausfuellen);
+        menueleiste.add(text);
         menueleiste.add(Bedienungshilfe);
 
         /*
@@ -347,7 +409,6 @@ public class GUI extends JFrame {
         });
         verwerfen.addActionListener(e -> {
             zeichenflaeche.reset();
-            zeichenflaeche.reset();
             aktuelleDatei = null;
             Aenderungengespeichert = true; //Da noch keine Änderungen es in neue Datei gab
             dialog.dispose();
@@ -361,6 +422,18 @@ public class GUI extends JFrame {
         Aenderungenungespeichertfenster.add(buttonsfenster2);
 
         /*
+        Globaler KeyEventDispatcher, damit Tastenkombinationen immer funktionieren auch wenn der Fokus
+        auf Menüleiste ist
+         */
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+            //Tastenkombination werden an Listener weitergegebn
+            if(e.getID()==KeyEvent.KEY_PRESSED) listener.keyAdapter.keyPressed(e);
+            if(e.getID()==KeyEvent.KEY_TYPED) listener.keyAdapter.keyTyped(e);
+
+            return false; //Dadurch darf der Listener die Tastenkombination weiterverwenden
+        });
+
+        /*
         Hinzufügen der einzelnen Elemente zur Anwendung
          */
         add(leiste, BorderLayout.NORTH);
@@ -370,15 +443,16 @@ public class GUI extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); //um Pop up Fenster zu ermöglichen falls es änderungen gibt
 
         zeichenflaeche.setFocusable(true);  //Um Fokus nur auf der Zeichenfläche zu haben damit Tastenkombinationen funktionieren
-        zeichenflaeche.addKeyListener(listener);
+
 
         setVisible(true);
         zeichenflaeche.requestFocusInWindow();
     }
     /*
-    Erstellen der inneren Klasse MeinListener
+    Erstellen der inneren Klasse MeinListener, diese benutzt die verschiedenen Adapter der anderen Listener um benötigte Methoden
+    zu benutzen
      */
-    class MeinListener implements ActionListener, MouseListener, MouseMotionListener, WindowListener, KeyListener {
+    class MeinListener implements ActionListener {
 
 
         int counter = 0;
@@ -389,7 +463,9 @@ public class GUI extends JFrame {
         int counterPolygon = 0;
         int[] xKoordinatenPolygon = new int[100]; //Das Polygon darf maximal 100 Punkte haben
         int[] yKoordinatenPolygon = new int[100];
-
+        /*
+        Überschreiben der Methoden vom ActionListener
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             //Abfrage ob wirklich neue Datei erstellt werden soll
@@ -440,361 +516,379 @@ public class GUI extends JFrame {
 
             }
         }
+        /*
+        Überschreiben benötigter Methoden vom MouseListener
+         */
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                double distanz;
 
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            double distanz;
-
-            if (Modus.equals("Frei")) { //Hier werden die Startkoordinaten für das freie Zeichnen beim erstmaligen Klicken erstellt
-                StartxKoordinate = e.getX();
-                StartyKoordinate = e.getY();
-            }
+                if (Modus.equals("Frei")) { //Hier werden die Startkoordinaten für das freie Zeichnen beim erstmaligen Klicken erstellt
+                    StartxKoordinate = e.getX();
+                    StartyKoordinate = e.getY();
+                }
             /*
             Hiremit kann der Nutzer ein Polygon erstllen
              */
-            if (Modus.equals("Polygon")) {
+                if (Modus.equals("Polygon")) {
 
-                if (counterPolygon < 100) { //Der Nutzer kann nur ein Polygon mit maximal 100 Punkten machen
-                    xKoordinatenPolygon[counterPolygon] = e.getX();
-                    yKoordinatenPolygon[counterPolygon] = e.getY();
-                    counterPolygon++;
+                    if (counterPolygon < 100) { //Der Nutzer kann nur ein Polygon mit maximal 100 Punkten machen
+                        xKoordinatenPolygon[counterPolygon] = e.getX();
+                        yKoordinatenPolygon[counterPolygon] = e.getY();
+                        counterPolygon++;
+                    }
+                    //Preview
+                    if (counterPolygon >= 2) {
+                        int[] xKoordinatenPreview = Arrays.copyOf(xKoordinatenPolygon, counterPolygon);
+                        int[] yKoordinatenPreview = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
+                        Polygon previewPolygon = new Polygon(xKoordinatenPreview, yKoordinatenPreview);
+                        previewPolygon.setDicke(aktuelleDicke);
+                        previewPolygon.setFarbe(aktuelleFarbe);
+                        zeichenflaeche.setPreviewPolygon(previewPolygon);
+                    }
+                    if (counterPolygon >= 3 && e.getClickCount() == 2) //Clickcount==2 da man dann mit einem Doppelklick das Polygon abschliessen kann
+                    {
+                        //Erstellen des richtigen Polygons
+                        zeichenflaeche.clearPreviewPolygon();
+                        Aenderungengespeichert = false;
+                        int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon, counterPolygon); //Dadurch wird nur der wirklich benutzte Teil des benutzt um ein Polygon zu zeichnen
+                        int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
+                        Polygon polygon = new Polygon(xKoordinaten, yKoordinaten);
+                        polygon.setFarbe(aktuelleFarbe);
+                        polygon.setDicke(aktuelleDicke);
+                        if(zeichenflaeche.isFuellFarbebenutzen()) polygon.setFuellfarbe(aktuelleFuellfarbe);
+                        zeichenflaeche.zeichnePolygon(polygon);
+                        counterPolygon = 0; //Für nächstes Polygon den counter zurücksetzen
+                    }
+
                 }
-                //Preview
-                if (counterPolygon >= 2) {
-                    int[] xKoordinatenPreview = Arrays.copyOf(xKoordinatenPolygon, counterPolygon);
-                    int[] yKoordinatenPreview = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
-                    Polygon previewPolygon = new Polygon(xKoordinatenPreview, yKoordinatenPreview);
-                    previewPolygon.setDicke(aktuelleDicke);
-                    previewPolygon.setFarbe(aktuelleFarbe);
-                    zeichenflaeche.setPreviewPolygon(previewPolygon);
-                }
-                if (counterPolygon >= 3 && e.getClickCount() == 2) //Clickcount==2 da man dann mit einem Doppelklick das Polygon abschliessen kann
-                {
-                    //Erstellen des richtigen Polygons
-                    zeichenflaeche.clearPreviewPolygon();
+            /*
+            Hiermit erstellt der Nutzer bei einem Click auf die Zeichenfläche einen Text, es wird ein Fenster
+            aufgerufen, in dem der Nutzer seinen Text eingeben soll
+             */
+                if(Modus.equals("Text")){
+                    String Eingabe = JOptionPane.showInputDialog("Text eingeben:");
+                    if(Eingabe == null) return; //Wenn es keine Eingabe gibt soll einfach fortgefahren werden
+                    zeichenflaeche.zeichneText(new Text(Eingabe,e.getX(),e.getY(),aktuelleTextFarbe,new Font(Font.SANS_SERIF,Font.PLAIN,schriftgroesse)));
                     Aenderungengespeichert = false;
-                    int[] xKoordinaten = Arrays.copyOf(xKoordinatenPolygon, counterPolygon); //Dadurch wird nur der wirklich benutzte Teil des benutzt um ein Polygon zu zeichnen
-                    int[] yKoordinaten = Arrays.copyOf(yKoordinatenPolygon, counterPolygon);
-                    Polygon polygon = new Polygon(xKoordinaten, yKoordinaten);
-                    polygon.setFarbe(aktuelleFarbe);
-                    polygon.setDicke(aktuelleDicke);
-                    if(zeichenflaeche.isFuellFarbebenutzen()) polygon.setFuellfarbe(aktuelleFuellfarbe);
-                    zeichenflaeche.zeichnePolygon(polygon);
-                    counterPolygon = 0; //Für nächstes Polygon den counter zurücksetzen
                 }
+            }
 
-            }
-        }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                zeichenflaeche.requestFocusInWindow(); //Damit der Fokus bei jedem Click in der Zeichenfläche bleibt und Shortcuts funktionieren
+                if (Modus.equals("Frei")) {
+                    aktuelleLinie.clear(); //Liste der ganz vielen kleinen Striche die ein grossen Strich bilden wird leer gemacht
+                    StartxKoordinate = e.getX(); //Startkoordinaten werden gesetzt
+                    StartyKoordinate = e.getY();
+                    Aenderungengespeichert = false;
+                    zeichenflaeche.clearPreviewFreihand(); //Um neues Previe zu zeichnen
+                }
+                if (Modus.equals("Radiere")) {
+                    aktuelleRadierung.clear(); //Liste der ganz vielen Radierpunkten wird leer gemacht, die einen Radierstrich bilden
+                    aktuelleRadierung.add(new Point(e.getX(), e.getY())); //Liste ganzvieler Radierpunkte wird erstmals gefüllt
+                    zeichenflaeche.Radiererpunkte.add(new Point(e.getX(), e.getY())); //Preview wird sofort sichtbar
+                    Aenderungengespeichert = false;
 
-        @Override
-        public void mousePressed(MouseEvent e) {
-            zeichenflaeche.requestFocusInWindow(); //Damit der Fokus bei jedem Click in der Zeichenfläche bleibt und Shortcuts funktionieren
-            if (Modus.equals("Frei")) {
-                aktuelleLinie.clear(); //Liste der ganz vielen kleinen Striche die ein grossen Strich bilden wird leer gemacht
-                StartxKoordinate = e.getX(); //Startkoordinaten werden gesetzt
-                StartyKoordinate = e.getY();
-                Aenderungengespeichert = false;
-            }
-            if (Modus.equals("Radiere")) {
-                aktuelleRadierung.clear(); //Liste der ganz vielen Radierpunkten wird leer gemacht, die einen Radierstrich bilden
-                aktuelleRadierung.add(new Point(e.getX(), e.getY())); //Liste ganzvieler Radierpunkte wird erstmals gefüllt
-                zeichenflaeche.Radiererpunkte.add(new Point(e.getX(), e.getY())); //Preview wird sofort sichtbar
-                Aenderungengespeichert = false;
-            }
+                    zeichenflaeche.setPreviewRadierer(new ArrayList<>(aktuelleRadierung)); //Es wird ein Preview erstellt
+                }
             /*
             Hiermit kann der Nutzern in dem er zwei Punkte markiert eine gerade Linie zeichnen
              */
-            if (Modus.equals("Gerade")) {
+                if (Modus.equals("Gerade")) {
 
-                switch (counter) {
-                    case 0:
-                        //Setzung Startkoordinaten
-                        counter++;
-                        StartyKoordinate = e.getY();
-                        StartxKoordinate = e.getX();
-                        break;
+                    switch (counter) {
+                        case 0:
+                            //Setzung Startkoordinaten
+                            counter++;
+                            StartyKoordinate = e.getY();
+                            StartxKoordinate = e.getX();
+                            break;
 
 
-                    case 1:
-                        //Verbinden Start mit Endkoordinaten
-                        counter = 0; //counter wird für näctse Linie zurückgesetzt
-                        EndXKoordinate = e.getX();
-                        EndYKoordinate = e.getY();
-                        Linie linie = new Linie(StartxKoordinate, StartyKoordinate, EndXKoordinate, EndYKoordinate);
-                        linie.setFarbe(aktuelleFarbe);
-                        linie.setDicke(aktuelleDicke);
-                        zeichenflaeche.zeichneLinie(linie);
-                        Aenderungengespeichert = false;
-                        break;
+                        case 1:
+                            //Verbinden Start mit Endkoordinaten
+                            counter = 0; //counter wird für näctse Linie zurückgesetzt
+                            EndXKoordinate = e.getX();
+                            EndYKoordinate = e.getY();
+                            Linie linie = new Linie(StartxKoordinate, StartyKoordinate, EndXKoordinate, EndYKoordinate);
+                            linie.setFarbe(aktuelleFarbe);
+                            linie.setDicke(aktuelleDicke);
+                            zeichenflaeche.zeichneLinie(linie);
+                            Aenderungengespeichert = false;
+                            break;
 
+
+                    }
+                }
+                //Startkootdinaten für die Shapes außer Polygon werden gesetzt
+                if (Modus.equals("Ellipse") || Modus.equals("Kreis") || Modus.equals("Rechteck")) {
+                    StartxKoordinate = e.getX();
+                    StartyKoordinate = e.getY();
 
                 }
             }
-            //Startkootdinaten für die Shapes außer Polygon werden gesetzt
-            if (Modus.equals("Ellipse") || Modus.equals("Kreis") || Modus.equals("Rechteck")) {
-                StartxKoordinate = e.getX();
-                StartyKoordinate = e.getY();
 
-            }
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
+            @Override
+            public void mouseReleased(MouseEvent e) {
             /*
             Nach Loslassen der Maus werden beim freien Zeichen, beim Zeichnen von Ellipsen,Rechtecken und Kreisen und beim Radieren
             die Previews gelöscht und der finale Shape gesetzt. Beim Radieren wird im Grunde auch eine große Line gezeichnet in der
             jeweiligen Hintergrundfarbe
             Zusätzlich wird am Ende jedes Shapes abgefragt ob dieser gefüllt werden soll
              */
-            if (Modus.equals("Frei")) {
-                if (!aktuelleLinie.isEmpty()) {
-                    zeichenflaeche.Linien.removeAll(aktuelleLinie); //Damit werden alle kleinen Linien (welche zusammen eine große Linie bilden) die als Preview dienen gelöscht um UN- und REDO möglichzumache
-                    zeichenflaeche.zeichneLinie(new ArrayList<>(aktuelleLinie)); //Es wird zeichnelinie für eine endgültige Linie aufgerufen
-                    Aenderungengespeichert = false;
-                    aktuelleLinie.clear();
+                if (Modus.equals("Frei")) {
+                    if (!aktuelleLinie.isEmpty()) {
+                        zeichenflaeche.clearPreviewFreihand();
+                        zeichenflaeche.zeichneLinie(new ArrayList<>(aktuelleLinie)); //Es wird zeichnelinie für eine endgültige Linie aufgerufen
+                        Aenderungengespeichert = false;
+                        aktuelleLinie.clear();
+                    }
                 }
-            }
-            if (Modus.equals("Ellipse")) {
-                zeichenflaeche.clearPreviewEllipse();
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
+                if (Modus.equals("Ellipse")) {
+                    zeichenflaeche.clearPreviewEllipse();
+                    EndXKoordinate = e.getX();
+                    EndYKoordinate = e.getY();
 
-                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
-                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
-                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
-                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate); //Hier dasselbe nur für die Hoehe statt für die Breite
-                Ellipse ellipse = new Ellipse(xKoordinate, yKoordinate, breite, hoehe);
-                ellipse.setFarbe(aktuelleFarbe);
-                ellipse.setDicke(aktuelleDicke);
-                if(zeichenflaeche.isFuellFarbebenutzen()) ellipse.setFuellfarbe(aktuelleFuellfarbe); //Zuerst füllen dann Randlinien zeichnen falls es gefüllt werden soll
-                zeichenflaeche.zeichneEllipse(ellipse);
-            }
-            if (Modus.equals("Kreis")) {
-                zeichenflaeche.clearPreviewKreis();
-                Aenderungengespeichert = false;
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
-                double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
-                        + (StartyKoordinate - EndYKoordinate) * (StartyKoordinate - EndYKoordinate)); //Berechnung des Radius mithilfe des Pythagoras
-                int radius = (int) radiusinDouble;
-                int xKoordinate = StartxKoordinate - radius; // Berechnung der Koordinaten des Mittelpunktes
-                int yKoordinate = StartyKoordinate - radius;
-                Kreis kreis = new Kreis(radius * 2, xKoordinate, yKoordinate);
-                kreis.setFarbe(aktuelleFarbe);
-                kreis.setDicke(aktuelleDicke);
-                if(zeichenflaeche.isFuellFarbebenutzen()) kreis.setFuellfarbe(aktuelleFuellfarbe);
-                zeichenflaeche.zeichneKreis(kreis);
-            }
-            if (Modus.equals("Rechteck")) {
-                zeichenflaeche.clearPreviewRechteck();
-                Aenderungengespeichert = false;
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
-
-                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten des linken oberen Eckpunktes
-                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
-                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
-                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate);
-                Rechteck rechteck = new Rechteck(xKoordinate, yKoordinate, breite, hoehe);
-                rechteck.setFarbe(aktuelleFarbe);
-                rechteck.setDicke(aktuelleDicke);
-                if(zeichenflaeche.isFuellFarbebenutzen()) rechteck.setFuellfarbe(aktuelleFuellfarbe);
-
-                zeichenflaeche.zeichneRechteck(rechteck);
-            }
-            if (Modus.equals("Radiere")) {
-                if (!aktuelleRadierung.isEmpty()) {
-                    zeichenflaeche.Radiererpunkte.removeAll(aktuelleRadierung); //preview wird wieder entfernt
-                    //Kopie nötig, da aktuelleRadierung bei Undo und Redo geleert wird
-                    zeichenflaeche.radiere(new ArrayList<>(aktuelleRadierung)); //Gesamter radiervorgang wird endgültig beendet, es wird der radierstrich hinzugefügt
-                    aktuelleRadierung.clear();
-                    Aenderungengespeichert = false;
+                    int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                    int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                    int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                    int hoehe = Math.abs(EndYKoordinate - StartyKoordinate); //Hier dasselbe nur für die Hoehe statt für die Breite
+                    Ellipse ellipse = new Ellipse(xKoordinate, yKoordinate, breite, hoehe);
+                    ellipse.setFarbe(aktuelleFarbe);
+                    ellipse.setDicke(aktuelleDicke);
+                    if(zeichenflaeche.isFuellFarbebenutzen()) ellipse.setFuellfarbe(aktuelleFuellfarbe); //Zuerst füllen dann Randlinien zeichnen falls es gefüllt werden soll
+                    zeichenflaeche.zeichneEllipse(ellipse);
                 }
+                if (Modus.equals("Kreis")) {
+                    zeichenflaeche.clearPreviewKreis();
+                    Aenderungengespeichert = false;
+                    EndXKoordinate = e.getX();
+                    EndYKoordinate = e.getY();
+                    double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
+                            + (StartyKoordinate - EndYKoordinate) * (StartyKoordinate - EndYKoordinate)); //Berechnung des Radius mithilfe des Pythagoras
+                    int radius = (int) radiusinDouble;
+                    int xKoordinate = StartxKoordinate - radius; // Berechnung der Koordinaten des Mittelpunktes
+                    int yKoordinate = StartyKoordinate - radius;
+                    Kreis kreis = new Kreis(radius * 2, xKoordinate, yKoordinate);
+                    kreis.setFarbe(aktuelleFarbe);
+                    kreis.setDicke(aktuelleDicke);
+                    if(zeichenflaeche.isFuellFarbebenutzen()) kreis.setFuellfarbe(aktuelleFuellfarbe);
+                    zeichenflaeche.zeichneKreis(kreis);
+                }
+                if (Modus.equals("Rechteck")) {
+                    zeichenflaeche.clearPreviewRechteck();
+                    Aenderungengespeichert = false;
+                    EndXKoordinate = e.getX();
+                    EndYKoordinate = e.getY();
+
+                    int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten des linken oberen Eckpunktes
+                    int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                    int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet dieser ist durch abs immer positiv
+                    int hoehe = Math.abs(EndYKoordinate - StartyKoordinate);
+                    Rechteck rechteck = new Rechteck(xKoordinate, yKoordinate, breite, hoehe);
+                    rechteck.setFarbe(aktuelleFarbe);
+                    rechteck.setDicke(aktuelleDicke);
+                    if(zeichenflaeche.isFuellFarbebenutzen()) rechteck.setFuellfarbe(aktuelleFuellfarbe);
+
+                    zeichenflaeche.zeichneRechteck(rechteck);
+                }
+                if (Modus.equals("Radiere")) {
+                    if (!aktuelleRadierung.isEmpty()) {
+                        zeichenflaeche.clearPreviewRadierer(); //preview wird wieder entfernt
+                        //Kopie nötig, da aktuelleRadierung bei Undo und Redo geleert wird
+                        zeichenflaeche.radiere(new ArrayList<>(aktuelleRadierung)); //Gesamter radiervorgang wird endgültig beendet, es wird der radierstrich hinzugefügt
+                        aktuelleRadierung.clear();
+                        Aenderungengespeichert = false;
+                    }
+                }
+
             }
-
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
+        };
+        /*
+        Überschreiben benötigter Methoden vom MouseMotionListener
+         */
+        MouseMotionAdapter mouseMotionAdapter = new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
             /*
             Hier werden die verschiedenen Previews erstellt, die entstehen wenn der Nutzer die Maustaste gedrückt hält
             Zusätzlich werden beim freien Zeichnen und beim Radieren sich all die Punkte gemerkt die radiert werden sollen,
             beziehungsweise all die kleinen Linien die erstellt werden sollen
              */
-            if (Modus.equals("Frei")) {
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
-                Linie linie = new Linie(StartxKoordinate, StartyKoordinate, EndXKoordinate, EndYKoordinate);
-                linie.setFarbe(aktuelleFarbe);
-                linie.setDicke(aktuelleDicke);
-                aktuelleLinie.add(linie);
-                zeichenflaeche.Linien.add(linie);
-                repaint();
+                if (Modus.equals("Frei")) {
+                    EndXKoordinate = e.getX();
+                    EndYKoordinate = e.getY();
+                    Linie linie = new Linie(StartxKoordinate, StartyKoordinate, EndXKoordinate, EndYKoordinate);
+                    linie.setFarbe(aktuelleFarbe);
+                    linie.setDicke(aktuelleDicke);
+                    aktuelleLinie.add(linie);
 
-                StartxKoordinate = EndXKoordinate; //Damit werden ganz viele kleine Linien verbunden zu einer großen
-                StartyKoordinate = EndYKoordinate;
+                    zeichenflaeche.setPreviewFreihand(new ArrayList<>(aktuelleLinie)); //Aktuelle linie wird kopiert und als preview genutzt
+
+                    StartxKoordinate = EndXKoordinate; //Damit werden ganz viele kleine Linien verbunden zu einer großen
+                    StartyKoordinate = EndYKoordinate;
+                }
+                if (Modus.equals("Radiere")) {
+                    Point aktuellerPunkt = new Point(e.getX(), e.getY());
+                    aktuelleRadierung.add(aktuellerPunkt); //Alle Punkte über die der Radierer gezogen wird, werden zum Aktuelle Liste hinzugefügt
+                    zeichenflaeche.setPreviewRadierer(new ArrayList<>(aktuelleRadierung)); //Preview
+                    Aenderungengespeichert = false;
+                }
+
+                if (Modus.equals("Kreis")) {
+                    EndXKoordinate = e.getX();
+                    EndYKoordinate = e.getY();
+                    double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
+                            + (StartyKoordinate - EndYKoordinate) * (StartyKoordinate - EndYKoordinate)); // Berechnung radius mithilfe Pythagoras
+                    int radius = (int) radiusinDouble;
+                    int xKoordinate = StartxKoordinate - radius; // Berechnung der Koordinaten des Mittelpunktes
+                    int yKoordinate = StartyKoordinate - radius;
+                    Kreis previewkreis = new Kreis(radius * 2, xKoordinate, yKoordinate);
+                    previewkreis.setFarbe(aktuelleFarbe);
+                    previewkreis.setDicke(aktuelleDicke);
+                    zeichenflaeche.setPreviewKreis(previewkreis);
+
+                }
+                if (Modus.equals("Rechteck")) {
+                    EndXKoordinate = e.getX();
+                    EndYKoordinate = e.getY();
+
+                    int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen für den obern linken Eckpunktes des Rechtecks
+                    int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                    int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet, dieser ist durch abs immer positiv
+                    int hoehe = Math.abs(EndYKoordinate - StartyKoordinate);
+                    Rechteck previewrechteck = new Rechteck(xKoordinate, yKoordinate, breite, hoehe);
+                    previewrechteck.setFarbe(aktuelleFarbe);
+                    previewrechteck.setDicke(aktuelleDicke);
+                    zeichenflaeche.setPreviewRechteck(previewrechteck);
+                }
+                if (Modus.equals("Ellipse")) {
+                    EndXKoordinate = e.getX();
+                    EndYKoordinate = e.getY();
+
+                    int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
+                    int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
+                    int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet, dieser ist durch abs immer positiv
+                    int hoehe = Math.abs(EndYKoordinate - StartyKoordinate);
+                    Ellipse ellipse = new Ellipse(xKoordinate, yKoordinate, breite, hoehe);
+                    ellipse.setFarbe(aktuelleFarbe);
+                    ellipse.setDicke(aktuelleDicke);
+                    zeichenflaeche.setPreviewEllipse(ellipse);
+                }
             }
-            if (Modus.equals("Radiere")) {
-                Point aktuellerPunkt = new Point(e.getX(), e.getY());
-                aktuelleRadierung.add(aktuellerPunkt); //Alle Punkte über die der Radierer gezogen wird, werden zum Aktuelle Liste hinzugefügt
-                zeichenflaeche.Radiererpunkte.add(aktuellerPunkt); //Preview
-                repaint();
-                Aenderungengespeichert = false;
-            }
-
-            if (Modus.equals("Kreis")) {
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
-                double radiusinDouble = Math.sqrt((StartxKoordinate - EndXKoordinate) * (StartxKoordinate - EndXKoordinate)
-                        + (StartyKoordinate - EndYKoordinate) * (StartyKoordinate - EndYKoordinate)); // Berechnung radius mithilfe Pythagoras
-                int radius = (int) radiusinDouble;
-                int xKoordinate = StartxKoordinate - radius; // Berechnung der Koordinaten des Mittelpunktes
-                int yKoordinate = StartyKoordinate - radius;
-                Kreis previewkreis = new Kreis(radius * 2, xKoordinate, yKoordinate);
-                previewkreis.setFarbe(aktuelleFarbe);
-                previewkreis.setDicke(aktuelleDicke);
-                zeichenflaeche.setPreviewKreis(previewkreis);
-
-            }
-            if (Modus.equals("Rechteck")) {
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
-
-                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen für den obern linken Eckpunktes des Rechtecks
-                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
-                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet, dieser ist durch abs immer positiv
-                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate);
-                Rechteck previewrechteck = new Rechteck(xKoordinate, yKoordinate, breite, hoehe);
-                previewrechteck.setFarbe(aktuelleFarbe);
-                previewrechteck.setDicke(aktuelleDicke);
-                zeichenflaeche.setPreviewRechteck(previewrechteck);
-            }
-            if (Modus.equals("Ellipse")) {
-                EndXKoordinate = e.getX();
-                EndYKoordinate = e.getY();
-
-                int xKoordinate = Math.min(StartxKoordinate, EndXKoordinate); //Kleinere Koordinaten nehmen da man in der "linken Oberen" Ecke hier die Koordinaten für die Ellipsen sind
-                int yKoordinate = Math.min(StartyKoordinate, EndYKoordinate);
-                int breite = Math.abs(EndXKoordinate - StartxKoordinate); //Abstand wird hier berechnet, dieser ist durch abs immer positiv
-                int hoehe = Math.abs(EndYKoordinate - StartyKoordinate);
-                Ellipse ellipse = new Ellipse(xKoordinate, yKoordinate, breite, hoehe);
-                ellipse.setFarbe(aktuelleFarbe);
-                ellipse.setDicke(aktuelleDicke);
-                zeichenflaeche.setPreviewEllipse(ellipse);
-            }
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-
-        }
-
-        @Override
-        public void windowOpened(WindowEvent e) {
-
-        }
-
-        @Override
-        public void windowClosing(WindowEvent e) {
+        };
+        /*
+        Überschreiben benötiger Methoden vom WindowListener
+         */
+        WindowAdapter windowAdapter = new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
             /*
             Wenn das Fenster geschlossen wird und es ungespeicherte Änderungen gab, soll abgefragt weden
             ob diese gespeichert werden sollen
              */
-            if (!Aenderungengespeichert) {
-                JOptionPane ungespeicherteAenderungen = new JOptionPane(
+                if (!Aenderungengespeichert) {
+                    JOptionPane ungespeicherteAenderungen = new JOptionPane(
 
-                        Aenderungenungespeichertfenster,
-                        JOptionPane.PLAIN_MESSAGE,
-                        JOptionPane.DEFAULT_OPTION,
-                        null,
-                        new Object[]{} //wichtig da sonst OK Button gibt
-                );
-                dialog = ungespeicherteAenderungen.createDialog(GUI.this, "Änderungen ungespeichert");
-                dialog.setVisible(true);
+                            Aenderungenungespeichertfenster,
+                            JOptionPane.PLAIN_MESSAGE,
+                            JOptionPane.DEFAULT_OPTION,
+                            null,
+                            new Object[]{} //wichtig da sonst OK Button gibt
+                    );
+                    dialog = ungespeicherteAenderungen.createDialog(GUI.this, "Änderungen ungespeichert");
+                    dialog.setVisible(true);
+                }
+                GUI.this.dispose(); //Hauptfenster wird geschlossen
             }
-            GUI.this.dispose(); //Hauptfenster wird geschlossen
-        }
-
-        @Override
-        public void windowClosed(WindowEvent e) {
-
-        }
-
-        @Override
-        public void windowIconified(WindowEvent e) {
-
-        }
-
-        @Override
-        public void windowDeiconified(WindowEvent e) {
-
-        }
-
-        @Override
-        public void windowActivated(WindowEvent e) {
-
-        }
-
-        @Override
-        public void windowDeactivated(WindowEvent e) {
-
-        }
+        };
         /*
-        Jetzt kommen die Tastenkombinationen
+        Jetzt kommen die Tastenkombinationen mit dem KeyListener
          */
-        @Override
-        public void keyTyped(KeyEvent e) {
-            //Dicke erhöhen mit +
-            if(e.getKeyChar() == '+') aktuelleDicke++;
-            //Dicke reduzieren mit -
-            if(e.getKeyChar() == '-') aktuelleDicke--;
-        }
+        KeyAdapter keyAdapter = new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+                //Dicke erhöhen mit +
+                if(e.getKeyChar() == '+'){
+                    if(aktuelleDicke<=50)  //Sonst wird das Programm langsamer
+                        aktuelleDicke++;
+                }
+                //Dicke reduzieren mit -
+                if(e.getKeyChar() == '-'){
+                    if(aktuelleDicke>0) //Keine negative Dicke
+                        aktuelleDicke--;
+                }
+            }
 
 
-        @Override
-        public void keyPressed(KeyEvent e) {
-            //Speichern STRG + S
-            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S) {
-                zwischenspeichern();
-                Aenderungengespeichert = true;
+            @Override
+            public void keyPressed(KeyEvent e) {
+                //Speichern STRG + S
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S) {
+                    zwischenspeichern();
+                    Aenderungengespeichert = true;
+                }
+                //Undo STRG + Z
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
+                    zeichenflaeche.undo();
+                }
+                //Redo STRG + Y
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
+                    zeichenflaeche.redo();
+                }
+                //Neue Datei STRG + N
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_N) {
+                    zeichenflaeche.reset();
+                    aktuelleDatei = null;
+                }
+                //Datei laden STRG + O
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_O) {
+                    ladeBild();
+                }
+                //Beenden STRG + Q
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Q) {
+                    dispose();
+                }
+            /*
+            Jetzt die Tastenkombinationen um die Einzelnen Menüpunkte aufzurufen
+             */
+                //ALT + D um Menüpunkt Datei zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_D){
+                    datei.doClick();
+                }
+                //ALT + F um Menüpunkt Formen zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_F){
+                    formen.doClick();
+                }
+                //ALT + B um Menüpunkt Bedienungshilfe zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_B) {
+                    Bedienungshilfe.doClick();
+                }
+                //ALT + H um Menüpunkt Hintergrund zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_H){
+                    hintergrund.doClick();
+                }
+                //ALT + E um Menüpunkt Radierer zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_E){
+                    radierer.doClick();
+                }
+                //ALT + U um Menüpunkt Fülleimer zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_U) {
+                    ausfuellen.doClick();
+                }
+                //ALT + S um Menüpunkt Stift zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_S){
+                    stift.doClick();
+                }
+                //ALT + T für Menüpunkt Text zu öffnen
+                if(e.isAltDown()&& e.getKeyCode() ==KeyEvent.VK_T){
+                    text.doClick();
+                }
             }
-            //Undo STRG + Z
-            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
-                zeichenflaeche.undo();
-            }
-            //Redo STRG + Y
-            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Y) {
-                zeichenflaeche.redo();
-            }
-            //Neue Datei STRG + N
-            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_N) {
-                zeichenflaeche.reset();
-                aktuelleDatei = null;
-            }
-            //Datei laden STRG + O
-            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_O) {
-                ladeBild();
-            }
-            //Beenden STRG + Q
-            if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Q) {
-                dispose();
-            }
-
-        }
-        @Override
-        public void keyReleased(KeyEvent e) {
-
-        }
+        };
     }
     /*
     Diese Methode legt zu erst einen Speicherort fest und wandelt dann die Zeichenfläche in ein BufferedImage, welches dann
@@ -812,7 +906,7 @@ public class GUI extends JFrame {
                 ImageIO.write(Bild, "jpg", datei); //Datei wird erzeugt
                 aktuelleDatei = datei; //Damit wird gezeigt es gibt einen aktuellen Speicherort
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "es gab einen Fehler beim Speichern!");
+                JOptionPane.showMessageDialog(this, "es gab einen Fehler beim Speichern!"); //Wenn Schreibrechte fehlen
             }
         }
     }
@@ -839,14 +933,17 @@ public class GUI extends JFrame {
         JFileChooser sucher = new JFileChooser();
         sucher.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)", "jpg"));
         if (sucher.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn der Nutzer wirklich laden will und nicht zwischendurch abbricht
-            BufferedImage zuladenesBild;
             try {
-                zuladenesBild = ImageIO.read(sucher.getSelectedFile());//Nutzer sucht Bild aus welches geladen werden soll
+                BufferedImage zuladenesBild = ImageIO.read(sucher.getSelectedFile());//Nutzer sucht Bild aus welches geladen werden soll
+                if(zuladenesBild == null){ //Abfrage ob richtiges Datei Format Ausgewählt worden ist
+                    JOptionPane.showMessageDialog(this,"Die Datei ist kein gültiges JPG-Bild!");
+                    return;
+                }
                 zeichenflaeche.reset();
                 zeichenflaeche.setBild(zuladenesBild); //Auf die leere Zeichenfläche wird das Bild gesetzt
                 zeichenflaeche.repaint();
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Es gab einen Fehler beim Laden des Bildes!");
+                JOptionPane.showMessageDialog(this, "Es gab einen Fehler beim Laden des Bildes!" + e.getMessage());
             }
         }
     }
