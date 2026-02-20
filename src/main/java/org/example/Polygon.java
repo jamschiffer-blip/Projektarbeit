@@ -3,11 +3,7 @@ package org.example;
 import java.awt.*;
 
 public class Polygon {
-    /*
-    Initiliasierung mit standardmäßiger Werte
-     */
     private Color fuellfarbe = null;
-    protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
 
@@ -17,9 +13,6 @@ public class Polygon {
         this.xKoordinaten = xKoordinaten;
         this.yKoordinaten = yKoordinaten;
     }
-    /*
-     Getter und Setter für die jeweiligen Instanzvariablen
-     */
     public int[] getxKoordinaten() {
         return xKoordinaten;
     }
@@ -27,17 +20,11 @@ public class Polygon {
     public int[] getyKoordinaten() {
         return yKoordinaten;
     }
+
     public int getAnzahlPunkte(){
         return xKoordinaten.length;
     }
 
-    public boolean isAusgefuellt() {
-        return ausgefuellt;
-    }
-
-    public void setAusgefuellt(boolean ausgefuellt) {
-        this.ausgefuellt = ausgefuellt;
-    }
     public Color getFarbe(){
         return farbe;
     }

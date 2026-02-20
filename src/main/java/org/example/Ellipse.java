@@ -3,10 +3,6 @@ package org.example;
 import java.awt.*;
 
 public class Ellipse {
-    /*
-    Initiliasierung mit standardmäßiger Werte
-     */
-    protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
     private Color fuellfarbe = null;
@@ -19,9 +15,7 @@ public class Ellipse {
         this.breite = breite;
         this.hoehe = hoehe;
     }
-    /*
-    Getter und Setter für die verschiedenen Instanzvariablen
-     */
+
     public int getxKoordinate() {
         return xKoordinate;
     }
@@ -38,13 +32,6 @@ public class Ellipse {
         return hoehe;
     }
 
-    public boolean isAusgefuellt() {
-        return ausgefuellt;
-    }
-
-    public void setAusgefuellt(boolean ausgefuellt) {
-        this.ausgefuellt = ausgefuellt;
-    }
     public Color getFarbe(){
         return farbe;
     }

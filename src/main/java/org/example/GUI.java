@@ -7,11 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI extends JFrame {
@@ -35,12 +32,12 @@ public class GUI extends JFrame {
     private ArrayList<Linie> aktuelleLinie = new ArrayList<>();
     private ArrayList<Point> aktuelleRadierung = new ArrayList<>();
     private boolean Aenderungengespeichert = true, neuesFenstererstellen = false;
-    private JPanel Aenderungenungespeichertfenster, neueDateierstellenfenster;
+    private JPanel Aenderungenungespeichertfenster, neueDateierstellenfenster, Dateiladenfenster;
     private JDialog dialog;
-    private ButtonGroup Auswahlmodi, Radierradius;
+    private ButtonGroup Auswahlmodi;
     private int schriftgroesse = 20;
-    private Font schriftart = new Font(Font.SANS_SERIF,Font.PLAIN,schriftgroesse);
     private Color aktuelleTextFarbe = Color.BLACK;
+    private Cursor Radierer,Pencil;
 
     public GUI() {
         /*
@@ -56,12 +53,9 @@ public class GUI extends JFrame {
         Verbinden mit den Listenern
          */
         MeinListener listener = new MeinListener();
-        zeichenflaeche.addMouseListener(listener.mouseAdapter);      //Diese beiden Listener braucht man nur zum Zeichnen, deswegen bekommt zeichenflaeche nur sie
+        zeichenflaeche.addMouseListener(listener.mouseAdapter);      //Diese beiden Listener braucht man nur zum Zeichnen, deswegen bekommt diese nur zeichenflaeche
         zeichenflaeche.addMouseMotionListener(listener.mouseMotionAdapter);
         addWindowListener(listener.windowAdapter);
-
-
-
 
         /*
         Erstellen der Symbolleiste
@@ -69,13 +63,12 @@ public class GUI extends JFrame {
         symbolleiste = new JToolBar();
         symbolleiste.setFloatable(false); //Dadurch kann man die symbolleistze mit der Maus nicht mehr wegziehen
 
-
         Undo = new JButton();
-        Undo.setIcon(new ImageIcon("icons/undo.png"));
+        Undo.setIcon(new ImageIcon(new ImageIcon("icons/undo.png").getImage().getScaledInstance(24,24,Image.SCALE_SMOOTH))); //Damit die Icons kliener sind
         Redo = new JButton();
-        Redo.setIcon(new ImageIcon("icons/redo.png"));
+        Redo.setIcon(new ImageIcon(new ImageIcon("icons/redo.png").getImage().getScaledInstance(24,24,Image.SCALE_SMOOTH)));
         Speichern = new JButton();
-        Speichern.setIcon(new ImageIcon("icons/save.png"));
+        Speichern.setIcon(new ImageIcon(new ImageIcon("icons/save.png").getImage().getScaledInstance(24,24,Image.SCALE_SMOOTH)));
 
         Undo.setActionCommand("undo");
         Redo.setActionCommand("redo");  //Icons Plagiat!!!
@@ -97,7 +90,6 @@ public class GUI extends JFrame {
         /*
         Erstellen der Menüleiste
          */
-
         menueleiste = new JMenuBar();
 
         //Erstellen des Menüpunktes Datei
@@ -108,7 +100,26 @@ public class GUI extends JFrame {
             Aenderungengespeichert = true;
         });
         Laden = new JMenuItem("Laden");
-        Laden.addActionListener(e -> ladeBild());
+        Laden.addActionListener(e -> {
+             //Abfrage ob wirklich datei geladen werden soll
+                JOptionPane PopupneuesFenstererstellen = new JOptionPane(
+
+                        Dateiladenfenster,
+                        JOptionPane.PLAIN_MESSAGE,
+                        JOptionPane.DEFAULT_OPTION,
+                        null,
+                        new Object[]{} //wichtig da es sonst einen OK Button gibt
+                );
+                dialog = PopupneuesFenstererstellen.createDialog(GUI.this, "Neues Fenster erstellen?");
+                dialog.setVisible(true);
+                if (neuesFenstererstellen) {
+                    aktuelleDatei = null;          //Nutzer muss neuen Speicherort festlegen
+                    Aenderungengespeichert = true; //Da noch keine Änderungen es in neue Datei gab
+                    ladeBild();
+                }
+
+
+        });
         NeueDatei = new JMenuItem("Neue Datei");
         Laden.setActionCommand("laden");
         Speichernmenueleiste.setActionCommand("Speichern Unter");
@@ -194,14 +205,17 @@ public class GUI extends JFrame {
         kleinerRadierer.addActionListener(e -> {
             Modus = "Radiere";
             zeichenflaeche.setRadierradius(10);
+            zeichenflaeche.setCursor((Radierer));
         });
         grosserRadierer.addActionListener(e -> {
             Modus = "Radiere";
             zeichenflaeche.setRadierradius(30);
+            zeichenflaeche.setCursor((Radierer));
         });
         mittlererRadierer.addActionListener(e -> {
             Modus = "Radiere";
             zeichenflaeche.setRadierradius(20);
+            zeichenflaeche.setCursor((Radierer));
         });
         Auswahlmodi.add(kleinerRadierer);       //Eine Buttongroup für Radierer und Shapes, damit nur ein Modus ausgewählt werden kann
         Auswahlmodi.add(mittlererRadierer);
@@ -225,7 +239,7 @@ public class GUI extends JFrame {
 
         hintergrund.add(farbeHintergrund);
 
-        //Erstellen des Menüpunktes Fülleimer um gegebenenfalls Shapes mit ausgewählter Füllung zu zeichnen
+        //Erstellen des Menüpunktes Fülleimer, um gegebenenfalls Shapes mit ausgewählter Füllung zu zeichnen
         ausfuellen = new JMenu("Fülleimer");
         JCheckBoxMenuItem ausfuellencheckbox = new JCheckBoxMenuItem("Ausfüllen?");
         ausfuellencheckbox.addActionListener(e -> {
@@ -250,7 +264,7 @@ public class GUI extends JFrame {
         Hilfe.addActionListener(e -> {
             JOptionPane.showMessageDialog(
                     this,
-                    "Willkomen bei dem Graphic Editor!\nHier ist die Bedienungsanleitung wie man diesen bedienen kann\n" +
+                    "Willkomen bei dem Graphic Editor!\nHier ist die Bedienungsanleitung wie man diesen bedienen kann\n\n" +
                             "᛫Menüpunkt Datei:\n" +
                             " Erstellt,Lädt und Speichert neue Dateien\n" +
                             "\n" +
@@ -266,6 +280,10 @@ public class GUI extends JFrame {
                             "\n" +
                             "᛫Menüpunkt Hintergrund:\n " +
                             "Hier wählt man die jeweilige Hintergrundfarbe aus\n" +
+                            "\n" +
+                            "᛫Menüpunkt Text:\n " +
+                            "Hier wählt man Text aus um Text schreiben zu können. Zusätzlich kann man Farbe und Schriftgröße auswählen.\n" +
+                            "Man klickt auf einen Punkt auf dem man den Text schreiben will und gibt im erscheinenden Fenster den jeweiligen Text ein.\n" +
                             "\n" +
                             "᛫Menüpunkt Fülleimer:\n" +
                             "Hier wählt man aus ob und wie man seine Shapes ausfüllen will\n" +
@@ -364,6 +382,31 @@ public class GUI extends JFrame {
 
 
         /*
+        Erstellen eines Fenster, das erscheint wenn eine  Datei geladen werden soll
+         */
+        Dateiladenfenster = new JPanel();
+        JPanel text3 = new JPanel();
+        JPanel buttons3 = new JPanel();
+        JLabel neueDatei3 = new JLabel("Soll eine Datei geladen werden?");
+        JButton erstellen3 = new JButton("Ja");
+        JButton nichterstellen3 = new JButton("Nein");
+        erstellen3.addActionListener(e -> {
+            neuesFenstererstellen = true;
+            dialog.dispose();
+        });
+        nichterstellen3.addActionListener(e -> {
+            neuesFenstererstellen = false;
+            dialog.dispose();
+        });
+        Dateiladenfenster.setLayout(new GridLayout(2, 1, 50, 50));
+        text3.add(neueDatei3);
+        buttons3.setLayout(new GridLayout(1, 2, 50, 50));
+        buttons3.add(erstellen3);
+        buttons3.add(nichterstellen3);
+        Dateiladenfenster.add(text3);
+        Dateiladenfenster.add(buttons3);
+
+        /*
         Erstellen eines Fenster, das erscheint wenn eine neue Datei erstellt werden soll
          */
         neueDateierstellenfenster = new JPanel();
@@ -423,7 +466,7 @@ public class GUI extends JFrame {
 
         /*
         Globaler KeyEventDispatcher, damit Tastenkombinationen immer funktionieren auch wenn der Fokus
-        auf Menüleiste ist
+        auf der Menüleiste ist
          */
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
             //Tastenkombination werden an Listener weitergegebn
@@ -432,6 +475,54 @@ public class GUI extends JFrame {
 
             return false; //Dadurch darf der Listener die Tastenkombination weiterverwenden
         });
+
+
+        /*
+        Erstellen der Cursor
+         */
+        Radierer = Toolkit.getDefaultToolkit().createCustomCursor(
+                new ImageIcon("icons/eraser.png").getImage().getScaledInstance(10,15,Image.SCALE_SMOOTH),
+                new Point(0,15), //Unten links beim Cursor ist der Punkt, von dem das radieren ausgeht
+                "radierer"
+        );
+        Pencil = Toolkit.getDefaultToolkit().createCustomCursor(
+                new ImageIcon("icons/pencil.png").getImage().getScaledInstance(15,15,Image.SCALE_SMOOTH),
+                new Point(0,30), //So sieht es aus als würde die Spitze zeichnen
+                "stift"
+        );
+
+        //Zuweisen der Cursor zu den verschiedenen Modi
+        freiesZeichnen.addActionListener(e->{
+            Modus= "Frei";
+            zeichenflaeche.setCursor(Cursor.getDefaultCursor());
+        });
+        geradesZeichnen.addActionListener(e->{
+            Modus= "Gerade";
+            zeichenflaeche.setCursor(Cursor.getDefaultCursor());
+        });
+        Kreis.addActionListener(e->{
+            Modus= "Kreis";
+            zeichenflaeche.setCursor(Pencil);
+        });
+        Ellipse.addActionListener(e->{
+            Modus= "Ellipse";
+            zeichenflaeche.setCursor(Pencil);
+        });
+        Polygon.addActionListener(e->{
+            Modus= "Polygon";
+            zeichenflaeche.setCursor(Cursor.getDefaultCursor());
+        });
+        Rechteck.addActionListener(e->{
+            Modus= "Rechteck";
+            zeichenflaeche.setCursor(Pencil);
+        });
+        Text.addActionListener(e->{
+            Modus= "Text";
+            zeichenflaeche.setCursor(Cursor.getDefaultCursor());
+        });
+        zeichenflaeche.setCursor(Pencil);
+
+
 
         /*
         Hinzufügen der einzelnen Elemente zur Anwendung
@@ -463,9 +554,7 @@ public class GUI extends JFrame {
         int counterPolygon = 0;
         int[] xKoordinatenPolygon = new int[100]; //Das Polygon darf maximal 100 Punkte haben
         int[] yKoordinatenPolygon = new int[100];
-        /*
-        Überschreiben der Methoden vom ActionListener
-         */
+
         @Override
         public void actionPerformed(ActionEvent e) {
             //Abfrage ob wirklich neue Datei erstellt werden soll
@@ -570,6 +659,15 @@ public class GUI extends JFrame {
                 if(Modus.equals("Text")){
                     String Eingabe = JOptionPane.showInputDialog("Text eingeben:");
                     if(Eingabe == null) return; //Wenn es keine Eingabe gibt soll einfach fortgefahren werden
+                    if(Eingabe.length()>100) { //Wenn ein Text mehr als 100 Zeichen hat wird er nicht angenommen
+                        JOptionPane.showMessageDialog(
+                                GUI.this,
+                                "Der eingegebene Text darf maximal 100 Zeichen haben.",
+                                "Eingabefehler",
+                                JOptionPane.WARNING_MESSAGE
+                        );
+                        return;
+                    }
                     zeichenflaeche.zeichneText(new Text(Eingabe,e.getX(),e.getY(),aktuelleTextFarbe,new Font(Font.SANS_SERIF,Font.PLAIN,schriftgroesse)));
                     Aenderungengespeichert = false;
                 }
@@ -906,7 +1004,7 @@ public class GUI extends JFrame {
                 ImageIO.write(Bild, "jpg", datei); //Datei wird erzeugt
                 aktuelleDatei = datei; //Damit wird gezeigt es gibt einen aktuellen Speicherort
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "es gab einen Fehler beim Speichern!"); //Wenn Schreibrechte fehlen
+                JOptionPane.showMessageDialog(this, "Es gab einen Fehler beim Speichern!"); //Wenn Schreibrechte fehlen
             }
         }
     }
@@ -923,7 +1021,7 @@ public class GUI extends JFrame {
         try {
             ImageIO.write(Bild, "jpg", aktuelleDatei); //Alte JPG Datei wird überschrieben
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "es gab einen Fehler beim Speichern der Datei!");
+            JOptionPane.showMessageDialog(this, "Es gab einen Fehler beim Speichern der Datei!");
         }
     }
     /*
@@ -932,6 +1030,7 @@ public class GUI extends JFrame {
     public void ladeBild() {
         JFileChooser sucher = new JFileChooser();
         sucher.setFileFilter(new FileNameExtensionFilter("JPG (*.jpg)", "jpg"));
+        sucher.setAcceptAllFileFilterUsed(false); //Verhindet Alle DAteien
         if (sucher.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { //Wenn der Nutzer wirklich laden will und nicht zwischendurch abbricht
             try {
                 BufferedImage zuladenesBild = ImageIO.read(sucher.getSelectedFile());//Nutzer sucht Bild aus welches geladen werden soll

@@ -3,9 +3,6 @@ package org.example;
 import java.awt.*;
 
 public class Rechteck {
-    /*
-    Initiliasierung mit standardmäßiger Werte
-     */
     private Color fuellfarbe = null;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
@@ -19,9 +16,6 @@ public class Rechteck {
         this.Breite = Breite;
         this.Hoehe = Hoehe;
     }
-    /*
-     Getter und Setter für die jeweiligen Instanzvariablen
-     */
     public int getxKoordinate() {
         return xKoordinate;
     }
@@ -42,9 +36,6 @@ public class Rechteck {
         return ausgefuellt;
     }
 
-    public void setAusgefuellt(boolean ausgefuellt) {
-        this.ausgefuellt = ausgefuellt;
-    }
     public Color getFarbe(){
         return farbe;
     }

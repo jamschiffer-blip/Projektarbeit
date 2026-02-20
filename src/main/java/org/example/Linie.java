@@ -3,9 +3,6 @@ package org.example;
 import java.awt.*;
 
 public class Linie {
-    /*
-    Initiliasierung mit standardmäßiger Werte
-     */
     private Color farbe = Color.BLACK;
     private float dicke = 2.0f;
 
@@ -17,9 +14,6 @@ public class Linie {
         this.EndX = EndX;
         this.EndY = EndY;
     }
-    /*
-     Getter und Setter für die jeweiligen Instanzvariablen
-     */
     public int getStartX() {
         return StartX;
     }

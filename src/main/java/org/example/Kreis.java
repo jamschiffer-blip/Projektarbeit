@@ -3,9 +3,6 @@ package org.example;
 import java.awt.*;
 
 public class Kreis {
-    /*
-    Initiliasierung mit standardmäßiger Werte
-     */
     private Color fuellfarbe = null;
     protected boolean ausgefuellt = false;
     private Color farbe = Color.BLACK;
@@ -18,9 +15,6 @@ public class Kreis {
         this.yKoordinate = yKoordinate;
         this.Durchmesser = Durchmesser;
     }
-    /*
-     Getter und Setter für die jeweiligen Instanzvariablen
-     */
     public int getDurchmesser() {
         return Durchmesser;
     }
@@ -33,13 +27,6 @@ public class Kreis {
         return yKoordinate;
     }
 
-    public boolean isAusgefuellt() {
-        return ausgefuellt;
-    }
-
-    public void setAusgefuellt(boolean ausgefuellt) {
-        this.ausgefuellt = ausgefuellt;
-    }
     public Color getFarbe(){
         return farbe;
     }
